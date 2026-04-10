@@ -99,8 +99,8 @@ export default function PlanningPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Lesson Planning</h1>
-          <p className="text-gray-600 mt-1">Schedule and plan your lessons</p>
+          <h1 className="text-3xl font-bold text-irm-text">Lesson Planning</h1>
+          <p className="text-irm-text-secondary mt-1">Schedule and plan your lessons</p>
         </div>
         <Button variant="primary" onClick={open}>
           + Schedule Lesson
@@ -153,7 +153,7 @@ export default function PlanningPage() {
       <Card className="p-6 overflow-x-auto">
         <div className="grid grid-cols-7 gap-2 mb-6">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-            <div key={day} className="text-center font-semibold text-gray-700 py-2">
+            <div key={day} className="text-center font-semibold text-irm-text-secondary py-2">
               {day}
             </div>
           ))}
@@ -162,7 +162,7 @@ export default function PlanningPage() {
         <div className="grid grid-cols-7 gap-2">
           {/* Empty cells for days before month starts */}
           {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-            <div key={`empty-${i}`} className="min-h-[100px] bg-gray-50 rounded-lg" />
+            <div key={`empty-${i}`} className="min-h-[100px] bg-irm-bg rounded-lg" />
           ))}
 
           {/* Days of month */}
@@ -177,20 +177,20 @@ export default function PlanningPage() {
               <div
                 key={day}
                 className={`min-h-[100px] p-2 rounded-lg border-2 ${
-                  isToday ? "border-aamusted-gold bg-aamusted-gold/5" : "border-gray-200 bg-white"
+                  isToday ? "border-aamusted-gold bg-aamusted-gold/5" : "border-irm-border bg-irm-card"
                 } hover:shadow-md transition-shadow`}
               >
-                <p className={`text-sm font-semibold ${isToday ? "text-aamusted-blue" : "text-gray-700"}`}>
+                <p className={`text-sm font-semibold ${isToday ? "text-irm-primary" : "text-irm-text-secondary"}`}>
                   {day}
                 </p>
                 <div className="space-y-1 mt-1">
                   {dayEvents.slice(0, 2).map((event) => (
-                    <div key={event.id} className="text-xs bg-blue-100 text-blue-700 p-1 rounded truncate">
+                    <div key={event.id} className="text-xs bg-blue-100 text-irm-primary p-1 rounded truncate">
                       {event.title}
                     </div>
                   ))}
                   {dayEvents.length > 2 && (
-                    <p className="text-xs text-gray-500">+{dayEvents.length - 2} more</p>
+                    <p className="text-xs text-irm-text-muted">+{dayEvents.length - 2} more</p>
                   )}
                 </div>
               </div>
@@ -202,26 +202,26 @@ export default function PlanningPage() {
       {/* Events List */}
       {events.length > 0 && (
         <Card className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Upcoming Lessons</h2>
+          <h2 className="text-xl font-bold text-irm-text mb-4">Upcoming Lessons</h2>
           <div className="space-y-3">
             {events.slice(0, 5).map((event) => (
               <div
                 key={event.id}
-                className="flex items-start gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-start gap-4 p-3 bg-irm-bg rounded-lg hover:bg-irm-bg-hover transition-colors"
               >
                 <div className="flex-shrink-0">
                   <div className="w-12 h-12 bg-aamusted-gold/20 rounded-lg flex items-center justify-center">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="text-aamusted-blue">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="text-irm-primary">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">{event.title}</h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <h3 className="font-semibold text-irm-text">{event.title}</h3>
+                  <p className="text-sm text-irm-text-secondary mt-1">
                     {new Date(event.date).toLocaleDateString()} at {event.time}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-irm-text-muted mt-1">
                     {event.school} • {event.mentor}
                   </p>
                 </div>

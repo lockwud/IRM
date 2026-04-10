@@ -3,49 +3,154 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebarState } from "./lib/hooks/useSidebarState";
 
-const favorites = [
-  { label: "Overview", href: "/" },
-  { label: "Students", href: "/students" },
-];
-
-const dashboards = [
-  { label: "Overview", href: "/" },
-  { label: "Internships", href: "/internships" },
-  { label: "Reports", href: "/reports" },
-];
-
-const pages = [
+/* ── Nav config ── */
+const navSections = [
   {
-    label: "Internship Management",
+    label: "Main",
     items: [
-      { label: "List All Students", href: "/students" },
-      { label: "Register Student", href: "/registration" },
-      { label: "Internships", href: "/internships" },
+      {
+        label: "Dashboard",
+        href: "/",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 2h5v5H2V2zm7 0h5v5H9V2zM2 9h5v5H2V9zm7 0h5v5H9V9z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+          </svg>
+        ),
+      },
+      {
+        label: "Students",
+        href: "/students",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.4"/>
+            <path d="M2 13.5c0-2.5 2.7-4 6-4s6 1.5 6 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        ),
+      },
+      {
+        label: "Register Student",
+        href: "/registration",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="5" r="3" stroke="currentColor" strokeWidth="1.4"/>
+            <path d="M1 13.5c0-2.5 2.5-4 6-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            <path d="M12 10v4M10 12h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        ),
+      },
+      {
+        label: "Internships",
+        href: "/internships",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="5" width="12" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
+            <path d="M5 5V3.5a3 3 0 016 0V5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        ),
+      },
     ],
   },
   {
-    label: "Academic Records",
+    label: "Academic",
     items: [
-      { label: "Lesson Notes", href: "/notes" },
-      { label: "Planning Calendar", href: "/planning" },
-      { label: "Whitebook", href: "/whitebook" },
+      {
+        label: "Lesson Notes",
+        href: "/notes",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 2h5l4 4v8H4V2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none"/>
+            <path d="M9 2v4h4M6 9h4M6 12h2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        ),
+      },
+
+      {
+        label: "Whitebook",
+        href: "/whitebook",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 2h8l2 2v10H3V2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none"/>
+            <path d="M5 7h6M5 10h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        ),
+      },
     ],
   },
   {
-    label: "IRMS (Record Book)",
+    label: "Records",
     items: [
-      { label: "Create Record", href: "/irms/records/new" },
-      { label: "View Records", href: "/irms/records" },
-      { label: "Reports", href: "/reports" },
+      {
+        label: "Create Record",
+        href: "/irms/records/new",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
+            <path d="M8 6v4M6 8h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        ),
+      },
+      {
+        label: "View Records",
+        href: "/irms/records",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 5h12M2 8h8M2 11h5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        ),
+      },
+      {
+        label: "Reports",
+        href: "/reports",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 13V8m3 5V5m3 8V7m3 6V3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        ),
+      },
     ],
   },
   {
     label: "Administration",
     items: [
-      { label: "Supervisor", href: "/supervisor" },
-      { label: "Monitoring", href: "/monitoring" },
-      { label: "Tasks", href: "/tasks" },
-      { label: "Settings", href: "/settings" },
+      {
+        label: "Supervisor",
+        href: "/supervisor",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.4"/>
+            <path d="M2 13.5c0-2.5 2.7-4 6-4s6 1.5 6 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        ),
+      },
+      {
+        label: "Monitoring",
+        href: "/monitoring",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="3" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
+            <path d="M5 14h6M8 11v3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        ),
+      },
+      {
+        label: "Tasks",
+        href: "/tasks",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 5l2 2 4-4M3 10l2 2 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        ),
+      },
+      {
+        label: "Settings",
+        href: "/settings",
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
+            <path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14M3.64 3.64l1.06 1.06M11.3 11.3l1.06 1.06M3.64 12.36l1.06-1.06M11.3 4.7l1.06-1.06" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        ),
+      },
     ],
   },
 ];
@@ -58,147 +163,121 @@ export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) 
 
   return (
     <aside
-      className={`h-screen flex flex-col bg-white border-r border-snow-border transition-all duration-300 sticky top-0 ${
-        collapsed ? "w-16" : "w-[250px]"
-      }`}
+      className={`h-screen flex flex-col sticky top-0 overflow-hidden transition-all duration-300
+        bg-irm-sidebar`}
+      style={{ width: collapsed ? 64 : 260, borderRight: "1px solid rgba(255,255,255,0.06)" }}
     >
-      {/* Logo */}
-      <div className={`flex items-center gap-2.5 h-14 ${collapsed ? "justify-center px-2" : "px-5"}`}>
-        <div className="w-7 h-7 rounded-lg bg-snow-accent flex items-center justify-center flex-shrink-0">
+      {/* ── Logo ── */}
+      <div
+        className={`flex items-center h-[60px] flex-shrink-0 ${
+          collapsed ? "justify-center px-3" : "px-5"
+        }`}
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+      >
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-irm-primary to-irm-c2 flex items-center justify-center flex-shrink-0 shadow-lg">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 3h4v4H3V3zm6 0h4v4H9V3zM3 9h4v4H3V9zm6 2a2 2 0 104 0 2 2 0 00-4 0z" fill="white"/>
           </svg>
         </div>
-        {!collapsed && <span className="font-semibold text-base text-snow-text tracking-tight">IRM Portal</span>}
+        {!collapsed && (
+          <div className="ml-3 min-w-0">
+            <p className="text-white font-bold text-[15px] leading-none tracking-tight">IRM Portal</p>
+            <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Internship Records</p>
+          </div>
+        )}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto pt-2 pb-4">
-        {/* Favorites */}
-        {!collapsed && (
-          <div className="px-5 pt-3 pb-1.5 flex items-center gap-4">
-            <span className="text-[11px] font-medium text-snow-text-muted uppercase tracking-wider">Favorites</span>
-            <span className="text-[11px] font-medium text-snow-text-muted/50 uppercase tracking-wider cursor-pointer hover:text-snow-text-muted">Recently</span>
-          </div>
-        )}
-        <div className="px-3 space-y-0.5">
-          {favorites.map((item) => (
-            <Link
-              key={item.href + item.label}
-              href={item.href}
-              className={`flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-[13px] transition-all ${
-                isActive(item.href)
-                  ? "text-snow-text font-medium"
-                  : "text-snow-text-secondary hover:text-snow-text hover:bg-snow-bg"
-              }`}
-            >
-              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isActive(item.href) ? "bg-snow-accent" : "bg-snow-text-muted/40"}`} />
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          ))}
-        </div>
+      {/* ── Navigation ── */}
+      <nav className="flex-1 overflow-y-auto py-3 space-y-1">
+        {navSections.map((section) => {
+          const sectionExpanded = expandedSections[section.label] !== false; // default expanded
+          const hasActiveChild = section.items.some((item) => isActive(item.href));
 
-        {/* Dashboards */}
-        {!collapsed && (
-          <div className="px-5 pt-5 pb-1.5">
-            <span className="text-[11px] font-medium text-snow-text-muted uppercase tracking-wider">Dashboards</span>
-          </div>
-        )}
-        <div className="px-3 space-y-0.5">
-          {dashboards.map((item) => (
-            <Link
-              key={item.href + item.label + "dash"}
-              href={item.href}
-              className={`flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-[13px] transition-all ${
-                isActive(item.href)
-                  ? "bg-snow-accent-light text-snow-accent font-medium"
-                  : "text-snow-text-secondary hover:text-snow-text hover:bg-snow-bg"
-              }`}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
-                {item.label === "Overview" ? (
-                  <path d="M2 2h5v5H2V2zm7 0h5v5H9V2zM2 9h5v5H2V9zm7 0h5v5H9V9z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                ) : item.label === "Internships" ? (
-                  <path d="M2 4a1 1 0 011-1h4l2 2h4a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V4z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                ) : (
-                  <path d="M3 3v10h10M6 10V8m3 2V6m3 4V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                )}
-              </svg>
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          ))}
-        </div>
-
-        {/* Pages */}
-        {!collapsed && (
-          <div className="px-5 pt-5 pb-1.5">
-            <span className="text-[11px] font-medium text-snow-text-muted uppercase tracking-wider">Pages</span>
-          </div>
-        )}
-        <div className="px-3 space-y-0.5">
-          {pages.map((section) => {
-            const sectionExpanded = expandedSections[section.label];
-            const hasActiveChild = section.items.some((item) => isActive(item.href));
-
-            return (
-              <div key={section.label}>
-                <button
-                  onClick={() => toggleSection(section.label)}
-                  className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-[13px] transition-all ${
-                    hasActiveChild ? "text-snow-text font-medium" : "text-snow-text-secondary hover:text-snow-text hover:bg-snow-bg"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
-                      <path d="M6 2v12M2 6h8v6a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                    </svg>
-                    {!collapsed && <span className="truncate">{section.label}</span>}
-                  </div>
-                  {!collapsed && (
+          return (
+            <div key={section.label} className="px-2">
+              {/* Section heading */}
+              {!collapsed && (
+                <div className="flex items-center justify-between px-3 pt-3 pb-1">
+                  <span
+                    className="text-[10px] font-semibold uppercase tracking-widest"
+                    style={{ color: "rgba(255,255,255,0.3)" }}
+                  >
+                    {section.label}
+                  </span>
+                  <button
+                    onClick={() => toggleSection(section.label)}
+                    className="transition-transform duration-200"
+                    style={{ color: "rgba(255,255,255,0.3)" }}
+                  >
                     <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 14 14"
-                      fill="none"
-                      className={`flex-shrink-0 transition-transform duration-200 text-snow-text-muted ${sectionExpanded ? "rotate-90" : ""}`}
+                      width="12" height="12" viewBox="0 0 12 12" fill="none"
+                      className={`transition-transform duration-200 ${sectionExpanded ? "" : "-rotate-90"}`}
                     >
-                      <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                  )}
-                </button>
-                {!collapsed && sectionExpanded && (
-                  <div className="ml-5 pl-2.5 border-l border-snow-border space-y-0.5 mt-0.5">
-                    {section.items.map((item) => (
+                  </button>
+                </div>
+              )}
+
+              {/* Items */}
+              {(collapsed || sectionExpanded) && (
+                <div className="space-y-0.5">
+                  {section.items.map((item) => {
+                    const active = isActive(item.href);
+                    return (
                       <Link
                         key={item.href}
                         href={item.href}
-                        className={`block px-2 py-1.5 rounded-lg text-[13px] transition-all ${
-                          isActive(item.href)
-                            ? "text-snow-accent font-medium bg-snow-accent-light"
-                            : "text-snow-text-secondary hover:text-snow-text hover:bg-snow-bg"
+                        title={collapsed ? item.label : undefined}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 ${
+                          active
+                            ? "text-white"
+                            : "hover:text-white"
                         }`}
+                        style={{
+                          background: active
+                            ? "rgba(255,255,255,0.12)"
+                            : undefined,
+                          color: active ? "#FFFFFF" : "rgba(255,255,255,0.5)",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!active) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)";
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!active) (e.currentTarget as HTMLElement).style.background = "";
+                        }}
                       >
-                        {item.label}
+                        <span className={`flex-shrink-0 ${active ? "text-white" : ""}`}
+                          style={{ color: active ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>
+                          {item.icon}
+                        </span>
+                        {!collapsed && <span className="truncate">{item.label}</span>}
+                        {active && !collapsed && (
+                          <span className="ml-auto w-1.5 h-1.5 rounded-full bg-irm-primary flex-shrink-0" style={{ background: "#60A5FA" }} />
+                        )}
                       </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </nav>
 
-      {/* Bottom: Logo */}
-      <div className={`px-5 py-4 border-t border-snow-border ${collapsed ? "flex justify-center" : ""}`}>
-        <Link href="/profile" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-snow-accent to-snow-purple flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-xs font-semibold">JD</span>
+      {/* ── User ── */}
+      <div
+        className={`flex-shrink-0 px-4 py-4 ${collapsed ? "flex justify-center" : ""}`}
+        style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
+      >
+        <Link href="/profile" className="flex items-center gap-3 group w-full">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-irm-primary to-irm-c2 flex items-center justify-center flex-shrink-0 text-white text-xs font-bold">
+            JD
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-medium text-snow-text truncate group-hover:text-snow-accent transition-colors">John Doe</p>
-              <p className="text-[11px] text-snow-text-muted truncate">Student</p>
+              <p className="text-[13px] font-semibold text-white truncate">John Doe</p>
+              <p className="text-[11px] truncate" style={{ color: "rgba(255,255,255,0.4)" }}>john.doe@aamusted.edu.gh</p>
             </div>
           )}
         </Link>

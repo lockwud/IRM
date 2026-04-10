@@ -68,7 +68,7 @@ const mockRecords: IRMSRecord[] = [
 ];
 
 const statusColors: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-800",
+  draft: "bg-irm-bg-hover text-irm-text",
   submitted: "bg-blue-100 text-blue-800",
   reviewed: "bg-yellow-100 text-yellow-800",
   approved: "bg-green-100 text-green-800",
@@ -91,7 +91,7 @@ export default function IRMSRecordsPage() {
       sortable: true,
       width: "120px",
       render: (value: string, row: IRMSRecord) => (
-        <Link href={`/irms/records/${row.id}`} className="text-aamusted-blue hover:underline font-medium">
+        <Link href={`/irms/records/${row.id}`} className="text-irm-primary hover:underline font-medium">
           {value}
         </Link>
       ),
@@ -143,8 +143,8 @@ export default function IRMSRecordsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">IRMS Records</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-irm-text">IRMS Records</h1>
+          <p className="text-irm-text-secondary mt-1">
             Manage internship record books and submissions
           </p>
         </div>
@@ -158,13 +158,13 @@ export default function IRMSRecordsPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Records", value: records.length, color: "bg-blue-50 text-blue-700" },
+          { label: "Total Records", value: records.length, color: "bg-blue-50 text-irm-primary" },
           { label: "Approved", value: records.filter((r) => r.status === "approved").length, color: "bg-green-50 text-green-700" },
           { label: "Submitted", value: records.filter((r) => r.status === "submitted").length, color: "bg-yellow-50 text-yellow-700" },
-          { label: "Draft", value: records.filter((r) => r.status === "draft").length, color: "bg-gray-50 text-gray-700" },
+          { label: "Draft", value: records.filter((r) => r.status === "draft").length, color: "bg-irm-bg text-irm-text-secondary" },
         ].map((stat) => (
           <Card key={stat.label} className="p-4">
-            <p className="text-sm text-gray-600">{stat.label}</p>
+            <p className="text-sm text-irm-text-secondary">{stat.label}</p>
             <p className={`text-3xl font-bold mt-2 ${stat.color}`}>{stat.value}</p>
           </Card>
         ))}
@@ -196,7 +196,7 @@ export default function IRMSRecordsPage() {
       </Card>
 
       {/* Results Info */}
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-irm-text-secondary">
         <p>
           Showing <span className="font-semibold">{filteredRecords.length}</span> of{" "}
           <span className="font-semibold">{records.length}</span> records
@@ -207,7 +207,7 @@ export default function IRMSRecordsPage() {
       <Card className="overflow-hidden p-0">
         {filteredRecords.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">No IRMS records found</p>
+            <p className="text-irm-text-muted">No IRMS records found</p>
           </div>
         ) : (
           <Table columns={tableColumns} data={filteredRecords} rowIdKey="id" striped />

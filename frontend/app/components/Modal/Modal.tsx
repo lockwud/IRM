@@ -35,16 +35,18 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+      style={{ background: "rgba(7,20,40,0.7)", backdropFilter: "blur(4px)" }}
       onClick={handleBackdropClick}
     >
-      <div className={`bg-white rounded-2xl shadow-xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-y-auto`}>
+      <div className={`bg-irm-card border border-irm-border rounded-2xl shadow-2xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-y-auto`}
+        style={{ boxShadow: "var(--irm-shadow-lg)" }}>
         {title && (
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 sticky top-0 bg-white rounded-t-2xl">
-            <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+          <div className="flex items-center justify-between border-b border-irm-border px-6 py-4 sticky top-0 bg-irm-card rounded-t-2xl">
+            <h2 className="text-lg font-bold text-irm-text">{title}</h2>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-1.5 hover:bg-irm-bg-hover text-irm-text-muted hover:text-irm-text rounded-xl transition-colors"
               aria-label="Close modal"
             >
               <svg

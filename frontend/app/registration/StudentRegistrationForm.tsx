@@ -22,18 +22,19 @@ export default function StudentRegistrationForm() {
   return (
     <form onSubmit={handleSubmit}>
       {submitted && (
-        <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
+        <div className="mb-4 p-4 rounded-xl bg-irm-success-light border border-irm-success/20 text-irm-success text-sm font-semibold flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
           Registration submitted successfully!
         </div>
       )}
 
-      <h3 className="text-lg font-semibold text-aamusted-blue mb-3">
+      <h3 className="text-base font-bold text-irm-text mb-3">
         Personal Information
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            Student Name <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium mb-1 text-irm-text-secondary">
+            Student Name <span className="text-irm-danger ml-0.5">*</span>
           </label>
           <input
             className="input"
@@ -44,8 +45,8 @@ export default function StudentRegistrationForm() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            Student Index <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium mb-1 text-irm-text-secondary">
+            Student Index <span className="text-irm-danger ml-0.5">*</span>
           </label>
           <input
             className="input"
@@ -56,8 +57,8 @@ export default function StudentRegistrationForm() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            Contact <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium mb-1 text-irm-text-secondary">
+            Contact <span className="text-irm-danger ml-0.5">*</span>
           </label>
           <input
             className="input"
@@ -68,8 +69,8 @@ export default function StudentRegistrationForm() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            Email <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium mb-1 text-irm-text-secondary">
+            Email <span className="text-irm-danger ml-0.5">*</span>
           </label>
           <input
             type="email"
@@ -81,7 +82,7 @@ export default function StudentRegistrationForm() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
+          <label className="block text-sm font-medium mb-1 text-irm-text-secondary">
             Program
           </label>
           <input
@@ -92,7 +93,7 @@ export default function StudentRegistrationForm() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
+          <label className="block text-sm font-medium mb-1 text-irm-text-secondary">
             Level
           </label>
           <input
@@ -104,13 +105,13 @@ export default function StudentRegistrationForm() {
         </div>
       </div>
 
-      <h3 className="text-lg font-semibold text-aamusted-blue mb-3">
+      <h3 className="text-base font-bold text-irm-text mb-3">
         School of Internship
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            School Name <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium mb-1 text-irm-text-secondary">
+            School Name <span className="text-irm-danger ml-0.5">*</span>
           </label>
           <input
             className="input"
@@ -121,8 +122,8 @@ export default function StudentRegistrationForm() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            Town <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium mb-1 text-irm-text-secondary">
+            Town <span className="text-irm-danger ml-0.5">*</span>
           </label>
           <input
             className="input"
@@ -133,8 +134,8 @@ export default function StudentRegistrationForm() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            Municipality <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium mb-1 text-irm-text-secondary">
+            Municipality <span className="text-irm-danger ml-0.5">*</span>
           </label>
           <input
             className="input"
@@ -149,7 +150,7 @@ export default function StudentRegistrationForm() {
       <div className="flex justify-end gap-3 pt-2">
         <button
           type="button"
-          className="px-5 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 font-medium"
+          className="px-5 py-2.5 rounded-xl bg-irm-bg text-irm-text-secondary hover:bg-irm-bg-hover border border-irm-border font-semibold text-sm transition-colors"
           onClick={() => {
             setStudentName("");
             setContact("");
@@ -166,7 +167,8 @@ export default function StudentRegistrationForm() {
         </button>
         <button
           type="submit"
-          className="px-6 py-2 rounded-xl bg-aamusted-blue text-white hover:bg-aamusted-blue/90 font-semibold shadow-sm"
+          className="px-6 py-2.5 rounded-xl text-white font-semibold text-sm shadow-sm transition-all hover:opacity-90"
+          style={{ background: "linear-gradient(135deg,#1B4FD8,#3B7CF4)", boxShadow: "0 2px 8px rgba(27,79,216,.35)" }}
         >
           Submit Registration
         </button>

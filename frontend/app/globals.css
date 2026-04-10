@@ -1,57 +1,152 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════════
+   IRM Design System  —  Deep Blue + White
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Light Mode Tokens ── */
+:root {
+  --irm-bg:              #EEF3FB;
+  --irm-bg-card:         #FFFFFF;
+  --irm-bg-hover:        #F3F7FF;
+  --irm-border:          #D5E0F0;
+  --irm-border-focus:    #1B4FD8;
+  --irm-text:            #0C1A33;
+  --irm-text-secondary:  #3D5278;
+  --irm-text-muted:      #8FA5C5;
+  --irm-header-bg:       #FFFFFF;
+  --irm-header-border:   #E0EAF8;
+  --irm-input-bg:        #FFFFFF;
+  --irm-input-border:    #CBD8EE;
+  --irm-scrollbar:       #C0D0E8;
+  --irm-shadow:          0 1px 4px rgba(14,30,70,.07), 0 4px 16px rgba(14,30,70,.05);
+  --irm-shadow-lg:       0 4px 24px rgba(14,30,70,.12);
+  --irm-badge-reg-bg:    #DBEAFE;
+  --irm-badge-reg-text:  #1D4ED8;
+  --irm-badge-prog-bg:   #FEF3C7;
+  --irm-badge-prog-text: #92400E;
+  --irm-badge-done-bg:   #D1FAE5;
+  --irm-badge-done-text: #065F46;
+}
+
+/* ── Dark Mode Tokens ── */
+.dark {
+  --irm-bg:              #071428;
+  --irm-bg-card:         #0D1E38;
+  --irm-bg-hover:        #12274A;
+  --irm-border:          #1A3055;
+  --irm-border-focus:    #4D7EFF;
+  --irm-text:            #D5E5F8;
+  --irm-text-secondary:  #7A9CC0;
+  --irm-text-muted:      #3E5A7A;
+  --irm-header-bg:       #0A1A30;
+  --irm-header-border:   #162840;
+  --irm-input-bg:        #071428;
+  --irm-input-border:    #1A3055;
+  --irm-scrollbar:       #1E3A60;
+  --irm-shadow:          0 1px 4px rgba(0,0,0,.3);
+  --irm-shadow-lg:       0 4px 24px rgba(0,0,0,.5);
+  --irm-badge-reg-bg:    #1E3560;
+  --irm-badge-reg-text:  #93C5FD;
+  --irm-badge-prog-bg:   #3D2A00;
+  --irm-badge-prog-text: #FCD34D;
+  --irm-badge-done-bg:   #052814;
+  --irm-badge-done-text: #6EE7B7;
+}
+
+/* ── Map tokens to Tailwind utilities ── */
 @theme {
-  /* AAMUSTED brand colors (kept for compatibility) */
-  --color-aamusted-blue: #00205B;
-  --color-aamusted-gold: #FFD100;
-  --color-aamusted-white: #FFFFFF;
-  --color-aamusted-accent: #E5B700;
-  --color-aamusted-gray: #F5F6FA;
+  /* Dynamic (flips in dark mode) */
+  --color-irm-bg:              var(--irm-bg);
+  --color-irm-card:            var(--irm-bg-card);
+  --color-irm-bg-hover:        var(--irm-bg-hover);
+  --color-irm-border:          var(--irm-border);
+  --color-irm-border-focus:    var(--irm-border-focus);
+  --color-irm-text:            var(--irm-text);
+  --color-irm-text-secondary:  var(--irm-text-secondary);
+  --color-irm-text-muted:      var(--irm-text-muted);
+  --color-irm-header:          var(--irm-header-bg);
+  --color-irm-header-border:   var(--irm-header-border);
+  --color-irm-input-bg:        var(--irm-input-bg);
+  --color-irm-input-border:    var(--irm-input-border);
 
-  /* SnowUI Theme */
-  --color-snow-bg: #F7F8FA;
-  --color-snow-sidebar: #FFFFFF;
-  --color-snow-card: #FFFFFF;
-  --color-snow-accent: #6366F1;
-  --color-snow-accent-light: #EEF2FF;
-  --color-snow-accent-hover: #818CF8;
-  --color-snow-text: #1C2024;
-  --color-snow-text-secondary: #6B7280;
-  --color-snow-text-muted: #A3AED0;
-  --color-snow-border: #E9EDF7;
-  --color-snow-stat-bg: #F4F7FE;
-  --color-snow-green: #05CD99;
-  --color-snow-red: #EE5D50;
-  --color-snow-purple: #7551FF;
-  --color-snow-blue: #3965FF;
-  --color-snow-orange: #FFB547;
-}
+  /* Static brand */
+  --color-irm-primary:         #1B4FD8;
+  --color-irm-primary-hover:   #1641B8;
+  --color-irm-primary-muted:   #BFDBFE;
+  --color-irm-primary-light:   #EBF2FF;
 
-/* Custom input style for forms */
-.input {
-  @apply w-full px-4 py-2 border border-snow-border rounded-xl focus:outline-none focus:ring-2 focus:ring-snow-accent/30 bg-white text-snow-text placeholder:text-snow-text-muted;
-}
+  /* Sidebar — always dark navy regardless of theme */
+  --color-irm-sidebar:         #0A1B38;
+  --color-irm-sidebar-deep:    #07132B;
 
-/* Smooth scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  /* Status */
+  --color-irm-success:         #059669;
+  --color-irm-success-light:   #D1FAE5;
+  --color-irm-danger:          #DC2626;
+  --color-irm-danger-light:    #FEE2E2;
+  --color-irm-warning:         #D97706;
+  --color-irm-warning-light:   #FEF3C7;
+  --color-irm-info:            #2563EB;
+  --color-irm-info-light:      #DBEAFE;
+
+  /* Chart palette */
+  --color-irm-c1: #1B4FD8;
+  --color-irm-c2: #3B7CF4;
+  --color-irm-c3: #60A5FA;
+  --color-irm-c4: #93C5FD;
+  --color-irm-c5: #BFDBFE;
 }
 
-/* SnowUI body reset */
+/* ── Tailwind v4 dark variant (class strategy) ── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Base Styles
+   ═══════════════════════════════════════════════════════════════════════ */
+
 body {
-  background: #F7F8FA;
-  color: #1C2024;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--irm-bg);
+  color: var(--irm-text);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Field base */
+.irm-input {
+  @apply w-full px-3.5 py-2.5 text-sm rounded-xl border transition-all duration-200
+    bg-irm-input-bg border-irm-input-border text-irm-text
+    placeholder:text-irm-text-muted
+    focus:outline-none focus:ring-2 focus:ring-irm-primary/25 focus:border-irm-border-focus
+    disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Legacy alias kept so old .input classes still work */
+.input {
+  @apply w-full px-3.5 py-2.5 text-sm rounded-xl border transition-all duration-200
+    bg-irm-input-bg border-irm-input-border text-irm-text
+    placeholder:text-irm-text-muted
+    focus:outline-none focus:ring-2 focus:ring-irm-primary/25 focus:border-irm-border-focus
+    disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Card shadow */
+.irm-card {
+  @apply bg-irm-card border border-irm-border rounded-xl;
+  box-shadow: var(--irm-shadow);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--irm-scrollbar);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--irm-border-focus); opacity: .6; }
+
+/* Status badge helpers */
+.badge-registration { background: var(--irm-badge-reg-bg);  color: var(--irm-badge-reg-text); }
+.badge-in_progress  { background: var(--irm-badge-prog-bg); color: var(--irm-badge-prog-text); }
+.badge-completed    { background: var(--irm-badge-done-bg); color: var(--irm-badge-done-text); }

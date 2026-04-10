@@ -31,7 +31,7 @@ const mockRecord = {
 };
 
 const statusColors: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-800",
+  draft: "bg-irm-bg-hover text-irm-text",
   submitted: "bg-blue-100 text-blue-800",
   reviewed: "bg-yellow-100 text-yellow-800",
   approved: "bg-green-100 text-green-800",
@@ -48,11 +48,11 @@ export default function IRMSRecordDetailPage({ params }: { params: Promise<{ id:
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <Link href="/irms/records" className="text-aamusted-blue hover:underline text-sm mb-2 inline-block">
+          <Link href="/irms/records" className="text-irm-primary hover:underline text-sm mb-2 inline-block">
             ← Back to Records
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">{record.recordNumber}</h1>
-          <p className="text-gray-600 mt-1">{record.studentName} • {record.school}</p>
+          <h1 className="text-3xl font-bold text-irm-text">{record.recordNumber}</h1>
+          <p className="text-irm-text-secondary mt-1">{record.studentName} • {record.school}</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -69,33 +69,33 @@ export default function IRMSRecordDetailPage({ params }: { params: Promise<{ id:
 
       {/* Record Information */}
       <Card className="p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Record Information</h2>
+        <h2 className="text-xl font-bold text-irm-text mb-4">Record Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-600">Student Name</p>
-            <p className="font-semibold text-gray-900">{record.studentName}</p>
+            <p className="text-sm text-irm-text-secondary">Student Name</p>
+            <p className="font-semibold text-irm-text">{record.studentName}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Record Number</p>
-            <p className="font-semibold text-gray-900">{record.recordNumber}</p>
+            <p className="text-sm text-irm-text-secondary">Record Number</p>
+            <p className="font-semibold text-irm-text">{record.recordNumber}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">School</p>
-            <p className="font-semibold text-gray-900">{record.school}</p>
+            <p className="text-sm text-irm-text-secondary">School</p>
+            <p className="font-semibold text-irm-text">{record.school}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Mentor</p>
-            <p className="font-semibold text-gray-900">{record.mentor}</p>
+            <p className="text-sm text-irm-text-secondary">Mentor</p>
+            <p className="font-semibold text-irm-text">{record.mentor}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Internship Period</p>
-            <p className="font-semibold text-gray-900">
+            <p className="text-sm text-irm-text-secondary">Internship Period</p>
+            <p className="font-semibold text-irm-text">
               {new Date(record.startDate).toLocaleDateString()} - {new Date(record.endDate).toLocaleDateString()}
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Duration</p>
-            <p className="font-semibold text-gray-900">
+            <p className="text-sm text-irm-text-secondary">Duration</p>
+            <p className="font-semibold text-irm-text">
               {Math.floor((new Date(record.endDate).getTime() - new Date(record.startDate).getTime()) / (1000 * 60 * 60 * 24)) / 30} months
             </p>
           </div>
@@ -104,10 +104,10 @@ export default function IRMSRecordDetailPage({ params }: { params: Promise<{ id:
 
       {/* Competencies */}
       <Card className="p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Competencies Assessed</h2>
+        <h2 className="text-xl font-bold text-irm-text mb-4">Competencies Assessed</h2>
         <div className="flex flex-wrap gap-2">
           {record.competencies.map((comp) => (
-            <span key={comp} className="px-3 py-1.5 bg-aamusted-gold/20 text-aamusted-blue rounded-full text-sm font-medium">
+            <span key={comp} className="px-3 py-1.5 bg-aamusted-gold/20 text-irm-primary rounded-full text-sm font-medium">
               {comp}
             </span>
           ))}
@@ -116,13 +116,13 @@ export default function IRMSRecordDetailPage({ params }: { params: Promise<{ id:
 
       {/* Performance Indicators */}
       <Card className="p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Performance Indicators</h2>
+        <h2 className="text-xl font-bold text-irm-text mb-4">Performance Indicators</h2>
         <div className="space-y-4">
           {Object.entries(record.performanceIndicators).map(([indicator, rating]) => (
             <div key={indicator}>
               <div className="flex items-center justify-between mb-2">
-                <p className="font-medium text-gray-700">{indicator}</p>
-                <span className="text-sm font-semibold text-aamusted-blue">{rating}/5</span>
+                <p className="font-medium text-irm-text-secondary">{indicator}</p>
+                <span className="text-sm font-semibold text-irm-primary">{rating}/5</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
@@ -138,12 +138,12 @@ export default function IRMSRecordDetailPage({ params }: { params: Promise<{ id:
       {/* Comments */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Mentor Comments</h2>
-          <p className="text-gray-700">{record.mentorComments || "No comments provided"}</p>
+          <h2 className="text-lg font-bold text-irm-text mb-4">Mentor Comments</h2>
+          <p className="text-irm-text-secondary">{record.mentorComments || "No comments provided"}</p>
         </Card>
         <Card className="p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Supervisor Comments</h2>
-          <p className="text-gray-700">{record.supervisorComments || "No comments provided"}</p>
+          <h2 className="text-lg font-bold text-irm-text mb-4">Supervisor Comments</h2>
+          <p className="text-irm-text-secondary">{record.supervisorComments || "No comments provided"}</p>
         </Card>
       </div>
 
@@ -163,8 +163,8 @@ export default function IRMSRecordDetailPage({ params }: { params: Promise<{ id:
       )}
 
       {/* Metadata */}
-      <Card className="p-6 bg-gray-50">
-        <p className="text-xs text-gray-500">
+      <Card className="p-6 bg-irm-bg">
+        <p className="text-xs text-irm-text-muted">
           Created: {new Date(record.createdAt).toLocaleString()} • Last updated: {new Date(record.updatedAt).toLocaleString()}
         </p>
       </Card>

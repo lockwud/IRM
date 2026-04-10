@@ -3,9 +3,15 @@ import StudentRegistrationForm from "./StudentRegistrationForm";
 
 export default function RegistrationPage() {
   return (
-    <div className="max-w-2xl mx-auto p-8 bg-aamusted-gray min-h-screen">
-      <h1 className="text-3xl font-bold text-aamusted-blue mb-6">Student Internship Registration</h1>
-      <div className="bg-white rounded-lg shadow p-6">
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-irm-text">Student Internship Registration</h1>
+        <p className="text-sm text-irm-text-muted mt-1">Register a new student for internship placement</p>
+      </div>
+      <div
+        className="bg-irm-card border border-irm-border rounded-xl p-6"
+        style={{ boxShadow: "var(--irm-shadow)" }}
+      >
         <StudentRegistrationForm />
       </div>
     </div>

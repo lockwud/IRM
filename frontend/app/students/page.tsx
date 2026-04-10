@@ -3,6 +3,7 @@ import { useState } from "react";
 import Table from "../components/Table/Table";
 import type { ActionMenuItem } from "../components/Table/Table";
 import Modal from "../components/Modal/Modal";
+import Button from "../components/Button";
 import { useModal } from "../lib/hooks/useModal";
 import { Student } from "../lib/types";
 
@@ -146,38 +147,35 @@ export default function StudentsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Student Directory</h1>
+        <h1 className="text-2xl font-bold text-irm-text">Student Directory</h1>
         <div className="flex items-center gap-3">
           {/* Active / Inactive toggle */}
-          <div className="flex items-center rounded-full border border-gray-300 overflow-hidden">
+          <div className="flex items-center rounded-md border border-irm-border overflow-hidden bg-irm-card">
             <button
               onClick={() => { setStatusFilter("active"); setCurrentPage(1); }}
-              className={`px-5 py-1.5 text-sm font-semibold transition-colors ${
+              className={`px-4 py-2 text-sm font-medium transition-colors ${
                 statusFilter === "active"
-                  ? "bg-[#0891b2] text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50"
+                  ? "bg-irm-primary text-white"
+                  : "text-irm-text-secondary hover:bg-irm-bg-hover"
               }`}
             >
               Active
             </button>
             <button
               onClick={() => { setStatusFilter("inactive"); setCurrentPage(1); }}
-              className={`px-5 py-1.5 text-sm font-semibold transition-colors ${
+              className={`px-4 py-2 text-sm font-medium transition-colors ${
                 statusFilter === "inactive"
-                  ? "bg-[#0891b2] text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50"
+                  ? "bg-irm-primary text-white"
+                  : "text-irm-text-secondary hover:bg-irm-bg-hover"
               }`}
             >
               Inactive
             </button>
           </div>
           {/* Register button */}
-          <button
-            onClick={open}
-            className="flex items-center gap-1.5 px-5 py-1.5 text-sm font-semibold rounded-full border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-          >
+          <Button onClick={open} variant="outline">
             <span className="text-base leading-none">+</span> Register Student
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -203,11 +201,11 @@ export default function StudentsPage() {
       {/* Registration Modal */}
       <Modal isOpen={isOpen} onClose={close} title="Register New Student" size="lg">
         <div className="space-y-4">
-          <p className="text-gray-600">
+          <p className="text-irm-text-secondary">
             Fill in the form below to register a new student intern to the system.
           </p>
           <div className="text-center py-8">
-            <p className="text-gray-400">Registration form component coming soon...</p>
+            <p className="text-irm-text-muted">Registration form component coming soon...</p>
           </div>
         </div>
       </Modal>

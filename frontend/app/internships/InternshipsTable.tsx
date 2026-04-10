@@ -30,6 +30,21 @@ const statusLabels: Record<string, string> = {
   completed: "Completed",
 };
 
+const statusConfig: Record<string, { label: string; cls: string }> = {
+  registration: { label: "Registration", cls: "badge-registration" },
+  in_progress:  { label: "In Progress",  cls: "badge-in_progress"  },
+  completed:    { label: "Completed",    cls: "badge-completed"    },
+};
+
+function StatusBadge({ value }: { value: string }) {
+  const s = statusConfig[value] || { label: value, cls: "badge-registration" };
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${s.cls}`}>
+      {s.label}
+    </span>
+  );
+}
+
 export default function InternshipsTable({ records, onRecordClick }: InternshipsTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(50);
@@ -56,7 +71,7 @@ export default function InternshipsTable({ records, onRecordClick }: Internships
       key: "status",
       label: "Status",
       sortable: true,
-      render: (value: string) => statusLabels[value] || value,
+      render: (value: string) => <StatusBadge value={value} />,
     },
     {
       key: "mentee",

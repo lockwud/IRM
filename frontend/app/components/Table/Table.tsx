@@ -62,7 +62,7 @@ function ActionMenu({ row, actions }: { row: any; actions: ActionMenuItem[] }) {
           e.stopPropagation();
           setOpen(!open);
         }}
-        className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+        className="p-1.5 text-irm-text-muted hover:text-irm-text hover:bg-irm-bg-hover rounded-lg transition-colors"
       >
         <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
           <circle cx="9" cy="4" r="1.5" />
@@ -71,7 +71,8 @@ function ActionMenu({ row, actions }: { row: any; actions: ActionMenuItem[] }) {
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-50 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-30">
+        <div className="absolute right-0 top-full mt-1 z-50 bg-irm-card border border-irm-border rounded-xl shadow-lg py-1 min-w-[130px]"
+          style={{ boxShadow: "var(--irm-shadow-lg)" }}>
           {actions.map((action, i) => (
             <button
               key={i}
@@ -80,10 +81,10 @@ function ActionMenu({ row, actions }: { row: any; actions: ActionMenuItem[] }) {
                 action.onClick(row);
                 setOpen(false);
               }}
-              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors ${
+              className={`w-full text-left px-3.5 py-2 text-[13px] flex items-center gap-2 transition-colors ${
                 action.variant === "danger"
-                  ? "text-red-600 hover:bg-red-50"
-                  : "text-gray-700 hover:bg-gray-50"
+                  ? "text-irm-danger hover:bg-irm-danger-light/30"
+                  : "text-irm-text-secondary hover:bg-irm-bg-hover"
               }`}
             >
               {action.icon}
@@ -119,21 +120,21 @@ function PaginationButtons({ pagination }: { pagination: TablePagination }) {
         title="Previous page"
         onClick={() => pagination.onPageChange(Math.max(1, pagination.currentPage - 1))}
         disabled={pagination.currentPage === 1}
-        className="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="w-8 h-8 flex items-center justify-center rounded-lg text-irm-text-muted hover:bg-irm-bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
       </button>
       {pages.map((page, idx) =>
         page === "..." ? (
-          <span key={`ellipsis-${idx}`} className="w-8 h-8 flex items-center justify-center text-gray-400 text-sm">...</span>
+          <span key={`ellipsis-${idx}`} className="w-8 h-8 flex items-center justify-center text-irm-text-muted text-sm">...</span>
         ) : (
           <button
             key={page}
             onClick={() => pagination.onPageChange(page)}
-            className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-colors ${
+            className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium transition-colors ${
               pagination.currentPage === page
-                ? "bg-[#0891b2] text-white"
-                : "text-gray-600 hover:bg-gray-100"
+                ? "bg-irm-primary text-white shadow-sm"
+                : "text-irm-text-secondary hover:bg-irm-bg-hover"
             }`}
           >
             {page}
@@ -144,7 +145,7 @@ function PaginationButtons({ pagination }: { pagination: TablePagination }) {
         title="Next page"
         onClick={() => pagination.onPageChange(Math.min(totalPages, pagination.currentPage + 1))}
         disabled={pagination.currentPage === totalPages}
-        className="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="w-8 h-8 flex items-center justify-center rounded-lg text-irm-text-muted hover:bg-irm-bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
       </button>
@@ -235,62 +236,71 @@ export default function Table({
 
   return (
     <div className={`${className}`}>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-[#0891b2]">
+      <div className="overflow-x-auto rounded-xl border border-irm-border bg-irm-card"
+        style={{ boxShadow: "var(--irm-shadow)" }}>
+        <table className="w-full caption-bottom text-sm">
+          <thead className="border-b border-irm-border bg-irm-bg/60">
+            <tr>
               {selectable && (
-                <th className="px-4 py-3 text-left w-10">
+                <th className="h-11 px-4 text-left w-10">
                   <input
                     type="checkbox"
                     title="Select all rows"
                     checked={selectedRows.length === data.length && data.length > 0}
                     onChange={handleSelectAll}
-                    className="rounded border-white/50 text-aamusted-blue focus:ring-white cursor-pointer"
+                    className="rounded border-irm-input-border cursor-pointer accent-irm-primary"
                   />
                 </th>
               )}
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-5 py-3 text-left font-semibold text-white text-[13px] tracking-wide ${
-                    col.sortable ? "cursor-pointer select-none" : ""
+                  className={`h-11 px-4 text-left align-middle text-xs font-semibold text-irm-text-secondary uppercase tracking-wider select-none ${
+                    col.sortable ? "cursor-pointer hover:text-irm-text" : ""
                   }`}
                   style={col.width ? { width: col.width } : undefined}
                   onClick={() => col.sortable && handleSort(col.key)}
                 >
                   <div className="flex items-center gap-1.5">
                     <span>{col.label}</span>
-                    {col.sortable && sortColumn === col.key && (
-                      <span className="text-white/80 text-xs">
-                        {sortOrder === "asc" ? "▲" : "▼"}
+                    {col.sortable && (
+                      <span className="opacity-40 text-[10px]">
+                        {sortColumn === col.key ? (
+                          sortOrder === "asc" ? "▲" : "▼"
+                        ) : "↕"}
                       </span>
                     )}
                   </div>
                 </th>
               ))}
               {actions && (
-                <th className="px-3 py-3 w-12" />
+                <th className="h-11 px-3 w-12" />
               )}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="[&_tr:last-child]:border-0">
             {sortedData.length === 0 ? (
               <tr>
                 <td
                   colSpan={totalCols}
-                  className="px-5 py-8 text-center text-gray-500"
+                  className="px-5 py-14 text-center text-irm-text-muted"
                 >
-                  No data available
+                  <div className="flex flex-col items-center gap-2">
+                    <svg width="36" height="36" viewBox="0 0 40 40" fill="none" className="opacity-30">
+                      <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M14 20h12M20 14v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity=".5"/>
+                    </svg>
+                    <span className="text-sm">No data available</span>
+                  </div>
                 </td>
               </tr>
             ) : (
               sortedData.map((row, idx) => (
                 <tr
                   key={row[rowIdKey]}
-                  className={`border-b border-gray-200 transition-colors hover:bg-gray-50/80 ${
-                    striped && idx % 2 === 1 ? "bg-gray-50/50" : "bg-white"
-                  } ${onRowClick ? "cursor-pointer" : ""}`}
+                  className={`border-b border-irm-border transition-colors ${
+                    striped && idx % 2 === 1 ? "bg-irm-bg/30" : ""
+                  } ${onRowClick ? "cursor-pointer hover:bg-irm-bg-hover/60" : "hover:bg-irm-bg/40"}`}
                   onClick={() => onRowClick?.(row)}
                 >
                   {selectable && (
@@ -300,13 +310,13 @@ export default function Table({
                         title="Select row"
                         checked={selectedRows.includes(row[rowIdKey])}
                         onChange={() => handleSelectRow(row[rowIdKey])}
-                        className="rounded border-gray-300 text-aamusted-blue focus:ring-aamusted-gold cursor-pointer"
+                        className="rounded border-irm-border cursor-pointer accent-irm-primary"
                         onClick={(e) => e.stopPropagation()}
                       />
                     </td>
                   )}
                   {columns.map((col) => (
-                    <td key={col.key} className="px-5 py-3 text-gray-700 text-[13px]">
+                    <td key={col.key} className="px-4 py-3 text-irm-text-secondary text-sm align-middle">
                       {col.render ? col.render(row[col.key], row) : row[col.key]}
                     </td>
                   ))}
@@ -324,17 +334,17 @@ export default function Table({
 
       {/* Pagination Footer */}
       {pagination && paginationInfo && (
-        <div className="flex items-center justify-between px-5 py-3 text-sm text-gray-500">
+        <div className="flex items-center justify-between px-4 py-3 text-sm text-irm-text-muted border-t border-irm-border bg-irm-bg/40 rounded-b-xl">
           <div className="flex items-center gap-4">
             <span>
-              Showing {paginationInfo.start} to {paginationInfo.end} of{" "}
+              Showing {paginationInfo.start}–{paginationInfo.end} of{" "}
               {paginationInfo.total} entries
             </span>
             <div className="flex items-center gap-1.5">
               <span>Show</span>
               <select
                 title="Rows per page"
-                className="border border-gray-300 rounded px-1.5 py-0.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#0891b2]"
+                className="border border-irm-input-border rounded-lg px-2 py-1 text-[13px] bg-irm-input-bg text-irm-text focus:outline-none focus:ring-1 focus:ring-irm-primary"
                 value={pagination.rowsPerPage}
                 onChange={(e) =>
                   pagination.onRowsPerPageChange?.(Number(e.target.value))

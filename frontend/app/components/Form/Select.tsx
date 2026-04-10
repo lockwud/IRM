@@ -72,7 +72,7 @@ export default function Select({
       {label && (
         <label
           htmlFor={selectId}
-          className="block text-sm font-medium text-gray-700 mb-1.5"
+          className="block text-sm font-semibold text-irm-text-secondary mb-1.5"
         >
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
@@ -85,12 +85,12 @@ export default function Select({
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
         className={`
-          hidden md:block w-full px-4 py-2.5 border rounded-lg text-sm font-medium
-          transition-all duration-200 ease-in-out
-          focus:outline-none focus:ring-2 focus:ring-aamusted-gold focus:ring-offset-1
-          bg-white text-gray-900
-          disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed
-          ${error ? "border-red-500 focus:ring-red-200" : "border-gray-300 hover:border-gray-400"}
+          hidden md:block w-full px-3.5 py-2.5 border rounded-xl text-sm
+          transition-all duration-200
+          focus:outline-none focus:ring-2 focus:ring-irm-primary/25 focus:border-irm-border-focus
+          bg-irm-input-bg text-irm-text border-irm-input-border
+          disabled:opacity-50 disabled:cursor-not-allowed
+          ${error ? "border-irm-danger focus:ring-irm-danger/20" : "hover:border-irm-border-focus/60"}
           ${className}
         `}
         aria-invalid={!!error}
