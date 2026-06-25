@@ -1,0 +1,20 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import type { PortalRole } from "@/lib/session";
+
+const roleCopy: Record<PortalRole,{title:string;identifier:string;demo:string;description:string}> = {
+  student:{title:"Student Portal",identifier:"Student email",demo:"student@aamusted.edu.gh / Student@123",description:"Access your placement, IRB, lesson notes, visits and documents."},
+  supervisor:{title:"Supervisor Portal",identifier:"Staff ID or email",demo:"STA-0182 / Supervisor@123",description:"Review assigned interns, lesson notes and field-visit schedules."},
+  coordinator:{title:"Coordinator Portal",identifier:"Coordinator email",demo:"coordinator@aamusted.edu.gh / Coordinator@123",description:"Manage the complete Student Internship Programme lifecycle."},
+};
+
+/** Portal-specific login form whose role is fixed by the requested protected URL. */
+export default function LoginForm({role}:{role:PortalRole}) {
+  const [stage,setStage]=useState<"idle"|"signing-in"|"permissions">("idle"); const [error,setError]=useState("");
+  const loading=stage!=="idle";
+  useEffect(()=>{const saved=localStorage.getItem(`sip-appearance-${role}`);if(!saved)return;try{const value=JSON.parse(saved);const color=value.color||"#4f46e5";const root=document.documentElement;root.style.setProperty("--primary",color);root.style.setProperty("--purple",color);root.style.setProperty("--active-bg",`color-mix(in srgb, ${color} 11%, white)`);root.dataset.portalTheme=(value.mode||"Light").toLowerCase()}catch{}},[role]);
+  async function submit(event:React.FormEvent<HTMLFormElement>){event.preventDefault();setStage("signing-in");setError("");const data=new FormData(event.currentTarget);try{const response=await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({role,identifier:data.get("identifier"),password:data.get("password")})});const result=await response.json();if(!response.ok){setStage("idle");setError(result.error);return}setStage("permissions");await new Promise(resolve=>window.setTimeout(resolve,650));window.location.href=result.redirectTo}catch{setStage("idle");setError("We could not sign you in. Please check your connection and try again.")}}
+  return <main className={`auth-page auth-${role}`}><section className="auth-brand-panel"><div className="auth-logo"><img src="/ustedlogo.jpeg" alt="AAMUSTED logo"/></div><span>AAMUSTED · CSTSI</span><h1>Student Internship Programme</h1><p>{roleCopy[role].description}</p><div className="auth-feature"><i>✓</i><span><strong>Protected {role} access</strong><small>This sign-in accepts only authorised {role} accounts.</small></span></div><div className="auth-feature"><i>✓</i><span><strong>Secure role workspace</strong><small>Other portals and records remain inaccessible.</small></span></div></section><section className="auth-form-panel"><form onSubmit={submit}><span className="auth-kicker">SECURE SIGN IN</span><h2>{roleCopy[role].title}</h2><p>Enter the credentials issued for your {role} account.</p>{error&&<div className="auth-error">{error}</div>}<label>{roleCopy[role].identifier}<input disabled={loading} required name="identifier" autoComplete="username" placeholder={role==="supervisor"?"e.g. STA-0182":"name@aamusted.edu.gh"}/></label><label>Password<input disabled={loading} required name="password" type="password" autoComplete="current-password" placeholder="Enter your password"/></label><div className="auth-options"><label><input disabled={loading} type="checkbox"/><span>Remember me</span></label><Link href={`/forgot-password?role=${role}`}>Forgot password?</Link></div><button className="auth-submit" disabled={loading} aria-live="polite">{loading&&<i className="auth-spinner"/>}{stage==="signing-in"?"Checking account…":stage==="permissions"?"Loading permissions…":"Sign in"}</button><div className="demo-credentials"><strong>Development account</strong><span>{roleCopy[role].demo}</span></div><div className="portal-address">Portal address: <strong>/{role}</strong></div></form></section></main>;
+}

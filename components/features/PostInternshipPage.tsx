@@ -1,0 +1,14 @@
+"use client";
+import { useState } from "react";
+
+const initialRecords = [{id:"PI-421",student:"Kwame Mensah",type:"Teaching Portfolio",reviewer:"Dr. Samuel Ofori",status:"Awaiting backup"},{id:"PI-420",student:"Esi Asare",type:"Research Report",reviewer:"Dr. Ama Gyasi",status:"Backup received"},{id:"PI-419",student:"Gifty Owusu",type:"Reflection Report",reviewer:"Dr. Samuel Ofori",status:"Supervisor revision"}];
+
+/** Coordinator backup register for final materials reviewed by supervisors. */
+export function PostInternshipPage({ notify }: { notify: (message: string) => void }) {
+  const [records,setRecords]=useState(initialRecords);
+  function status(id:string,value:string){setRecords(records.map(record=>record.id===id?{...record,status:value}:record));notify(`Coordinator backup marked ${value.toLowerCase()}.`)}
+  return <><PageHeading label="COORDINATOR RECORDS" title="Post-internship backup" copy="Supervisors receive and review final materials. Coordinator records only backup copies received for administration."/><div className="module-card"><div className="table-scroll action-menu-table"><table><thead><tr><th>Reference</th><th>Student</th><th>Material</th><th>Primary reviewer</th><th>Coordinator backup</th><th>Actions</th></tr></thead><tbody>{records.map(record=><tr key={record.id}><td><strong>{record.id}</strong></td><td>{record.student}</td><td>{record.type}</td><td>{record.reviewer}</td><td><Status value={record.status}/></td><td><PostActionMenu onReceived={()=>status(record.id,"Backup received")} onMissing={()=>status(record.id,"Awaiting backup")} onEdit={()=>notify(`Editing backup record for ${record.type}.`)} onDelete={()=>{setRecords(records.filter(r=>r.id!==record.id));notify("Backup record deleted successfully.")}}/></td></tr>)}</tbody></table></div></div></>;
+}
+function PostActionMenu({onReceived,onMissing,onEdit,onDelete}:{onReceived:()=>void;onMissing:()=>void;onEdit:()=>void;onDelete:()=>void}){const[open,setOpen]=useState(false);return <div className="ellipsis-menu-wrap"><button className="dots" onClick={()=>setOpen(!open)} aria-label="Open actions">•••</button>{open&&<div className="ellipsis-popover"><button onClick={()=>{onReceived();setOpen(false)}}>✓ Mark backup received</button><button onClick={()=>{onMissing();setOpen(false)}}>↺ Awaiting backup</button><button onClick={()=>{onEdit();setOpen(false)}}>✎ Edit record</button><button className="danger" onClick={()=>{onDelete();setOpen(false)}}>⌫ Delete</button></div>}</div>}
+export function PageHeading({label,title,copy}:{label:string;title:string;copy:string}){return <section className="module-head"><div><span>{label}</span><h1>{title}</h1><p>{copy}</p></div></section>}
+export function Status({value}:{value:string}){return <span className={`status status-${value.toLowerCase()}`}>{value}</span>}
