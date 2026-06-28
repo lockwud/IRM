@@ -9,6 +9,19 @@ export type Placement = {
 export type LessonNote = {
   id: string; student: string; subject: string; topic: string; week: string;
   mentor: "Pending" | "Approved" | "Revision"; supervisor: "Pending" | "Approved" | "Revision";
+  planType?: "Weekly" | "Termly";
+  className?: string;
+  weekEnding?: string;
+  learningIndicators?: string;
+  performanceIndicators?: string;
+  resources?: string;
+  phaseStarter?: string;
+  phaseMain?: string;
+  phaseReflection?: string;
+  days?: { day: string; starter: string; main: string; reflection: string }[];
+  term?: string;
+  termOverview?: string;
+  assessmentPlan?: string;
 };
 export type Visit = {
   id: string; student: string; supervisor: string; school: string;

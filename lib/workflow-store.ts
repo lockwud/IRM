@@ -1,4 +1,5 @@
 import { seedLessonNotes, seedNotifications, seedPlacements, seedStudents, seedVisits, type LessonNote, type NotificationItem, type Placement, type Student, type Visit } from "@/lib/sip-data";
+import { fetchWorkflowData, saveWorkflowData } from "@/lib/api-client";
 
 // Shared browser-side workflow store used by the three demo portals.
 // The coordinator, supervisor and student pages all read/write this same key so
@@ -48,6 +49,24 @@ function normalizeVisit(visit: Visit & { date?: string }): Visit {
 export function writeWorkflowData(data: SipWorkflowData) {
   if (typeof window === "undefined") return;
   localStorage.setItem(workflowStorageKey, JSON.stringify(data));
+}
+
+export async function readWorkflowDataAsync(): Promise<SipWorkflowData> {
+  // Prefer the backend when it is configured and authenticated. If the API is
+  // unavailable, fall back to localStorage so the demo can continue offline.
+  const remote = await fetchWorkflowData();
+  if (remote) {
+    writeWorkflowData(remote);
+    return remote;
+  }
+  return readWorkflowData();
+}
+
+export async function persistWorkflowData(data: SipWorkflowData) {
+  // Always save locally first for instant UI updates, then mirror to the API.
+  // The API client silently no-ops when NEXT_PUBLIC_API_BASE_URL is not set.
+  writeWorkflowData(data);
+  await saveWorkflowData(data);
 }
 
 export function newNotification(title: string, message: string, type: string): NotificationItem {

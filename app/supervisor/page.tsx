@@ -9,7 +9,8 @@ import { UserSettings } from "@/components/UserSettings";
 import { ChangePasswordPanel } from "@/components/ChangePassword";
 import { AppearanceLoader, AppearanceSettings } from "@/components/AppearanceSettings";
 import type { LessonNote, Student, Visit } from "@/lib/sip-data";
-import { newNotification, readWorkflowData, writeWorkflowData, type SipWorkflowData } from "@/lib/workflow-store";
+import { defaultWorkflowData, newNotification, persistWorkflowData, readWorkflowDataAsync, type SipWorkflowData } from "@/lib/workflow-store";
+import { createSupportTicket, ensureApiRole, fetchSupervisorDashboard, type SupervisorDashboardKpis } from "@/lib/api-client";
 
 type SupervisorIconName = "grid" | "users" | "file" | "calendar" | "bell" | "logout";
 
@@ -27,16 +28,44 @@ function SupervisorIcon({ name }: { name: SupervisorIconName }) {
 
 const supervisorName = "Dr. Samuel Ofori";
 const supervisorEmail = "samuel.ofori@aamusted.edu.gh";
-const nav = [["Dashboard", "grid"], ["Assigned Interns", "users"], ["Lesson Reviews", "file"], ["Visit Schedule", "calendar"], ["Post-Internship", "file"]] as [string, SupervisorIconName][];
+const nav = [["Dashboard", "grid"], ["Assigned Interns", "users"], ["Lesson Reviews", "file"], ["Visit Schedule", "calendar"], ["Support", "bell"]] as [string, SupervisorIconName][];
+const defaultSupervisorDashboard: SupervisorDashboardKpis = { kpis: { assignedInterns: 0, pendingReviews: 0, upcomingVisits: 0, averageIrbProgress: 0, completedVisits: 0 }, assignedInterns: [], pendingLessonReviews: [] };
 
 export default function SupervisorDashboard() {
   const [active, setActive] = useState("Dashboard");
   const [toast, setToast] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
-  const [workflow, setWorkflow] = useState<SipWorkflowData>(() => readWorkflowData());
+  const [workflow, setWorkflow] = useState<SipWorkflowData>(defaultWorkflowData);
+  const [hydrated, setHydrated] = useState(false);
+  const [dashboardData, setDashboardData] = useState<SupervisorDashboardKpis>(defaultSupervisorDashboard);
+  const [dashboardPeriod, setDashboardPeriod] = useState("This week");
 
-  useEffect(() => writeWorkflowData(workflow), [workflow]);
+  useEffect(() => {
+    if (!ensureApiRole("supervisor")) {
+      fetch("/api/auth/logout", { method: "POST" }).finally(() => { window.location.href = "/login?role=supervisor"; });
+      return;
+    }
+    let alive = true;
+    readWorkflowDataAsync().then((data) => {
+      if (!alive) return;
+      setWorkflow(data);
+      setHydrated(true);
+    });
+    return () => { alive = false; };
+  }, []);
+
+  useEffect(() => {
+    if (hydrated) persistWorkflowData(workflow);
+  }, [workflow, hydrated]);
+
+  useEffect(() => {
+    let alive = true;
+    fetchSupervisorDashboard(dashboardPeriod).then((data) => {
+      if (alive && data) setDashboardData(data);
+    });
+    return () => { alive = false; };
+  }, [dashboardPeriod]);
 
   const assignedInterns = useMemo(() => buildAssignedInterns(workflow), [workflow]);
   const assignedNames = useMemo(() => new Set(assignedInterns.map(item => item.name)), [assignedInterns]);
@@ -60,6 +89,7 @@ export default function SupervisorDashboard() {
   }
 
   async function logout() {
+    localStorage.removeItem("sip_api_token");
     await fetch("/api/auth/logout", { method: "POST" });
     window.location.href = "/login?role=supervisor";
   }
@@ -67,7 +97,7 @@ export default function SupervisorDashboard() {
   return <div className="supervisor-shell"><AppearanceLoader role="supervisor"/>
     <aside className="supervisor-sidebar">
       <div className="supervisor-brand"><b><img src="/ustedlogo.jpeg" alt="AAMUSTED logo"/></b><span><strong>AAMUSTED</strong><small>Supervisor Portal</small></span></div>
-      <nav>{nav.map(([label, icon]) => <button className={active === label ? "active" : ""} onClick={() => setActive(label)} key={label}><SupervisorIcon name={icon}/>{label}</button>)}</nav>
+      <nav>{nav.map(([label, icon]) => <button className={active === label ? "active" : ""} onClick={() => openPage(label)} key={label}><SupervisorIcon name={icon}/>{label}</button>)}</nav>
     </aside>
     <main>
       <header className="supervisor-topbar">
@@ -87,7 +117,7 @@ export default function SupervisorDashboard() {
       </header>
       <div className="supervisor-content">
         {active === "Dashboard"
-          ? <><section className="module-head"><div><span>WELCOME BACK</span><h1>Welcome, Dr. Ofori</h1><p>You currently supervise {assignedInterns.length} interns across {new Set(assignedInterns.map(intern => intern.region)).size || 0} assigned regions.</p></div></section><Overview assignedInterns={assignedInterns} notes={notes} visits={visits} setActive={setActive}/></>
+          ? <><section className="module-head"><div><span>WELCOME BACK</span><h1>Welcome, Dr. Ofori</h1><p>You currently supervise {dashboardData.kpis.assignedInterns || assignedInterns.length} interns across {new Set(assignedInterns.map(intern => intern.region)).size || 0} assigned regions.</p></div></section><Overview assignedInterns={assignedInterns} notes={notes} visits={visits} setActive={setActive} dashboardData={dashboardData} period={dashboardPeriod} setPeriod={setDashboardPeriod}/></>
           : <InternWorkspace active={active} assignedInterns={assignedInterns} notes={notes} visits={visits} workflow={workflow} setWorkflow={setWorkflow} notify={notify}/>}
       </div>
     </main>
@@ -119,18 +149,17 @@ function buildAssignedInterns(workflow: SipWorkflowData): AssignedIntern[] {
   });
 }
 
-function Overview({ assignedInterns, notes, visits, setActive }: { assignedInterns: AssignedIntern[]; notes: LessonNote[]; visits: Visit[]; setActive: (value: string) => void }) {
-  const [period, setPeriod] = useState("This week");
-  const average = assignedInterns.length ? Math.round(assignedInterns.reduce((total, intern) => total + intern.irb, 0) / assignedInterns.length) : 0;
-  const pending = notes.filter(note => note.supervisor === "Pending").length;
+function Overview({ assignedInterns, notes, visits, setActive, dashboardData, period, setPeriod }: { assignedInterns: AssignedIntern[]; notes: LessonNote[]; visits: Visit[]; setActive: (value: string) => void; dashboardData: SupervisorDashboardKpis; period: string; setPeriod: (value: string) => void }) {
+  const average = dashboardData.kpis.averageIrbProgress || (assignedInterns.length ? Math.round(assignedInterns.reduce((total, intern) => total + intern.irb, 0) / assignedInterns.length) : 0);
+  const pending = dashboardData.kpis.pendingReviews || notes.filter(note => note.supervisor === "Pending").length;
   return <>
     <div className="dashboard-periods">{["Today", "This week", "This month", "All time"].map(item => <button className={period === item ? "active" : ""} onClick={() => setPeriod(item)} key={item}>{item}</button>)}</div>
     <section className="supervisor-metrics supervisor-metrics-five">
-      <button onClick={() => setActive("Assigned Interns")}><span>Assigned interns</span><strong>{assignedInterns.length}</strong><small>Across partner schools</small><em>Active</em></button>
-      <button onClick={() => setActive("Lesson Reviews")}><span>Pending reviews</span><strong>{pending}</strong><small>Lesson notes awaiting action</small><em>Action needed</em></button>
-      <button onClick={() => setActive("Visit Schedule")}><span>Upcoming visits</span><strong>{visits.filter(v => v.status === "Scheduled").length}</strong><small>Over the next 14 days</small><em>Scheduled</em></button>
-      <button onClick={() => setActive("Assigned Interns")}><span>Average IRB progress</span><strong>{average}%</strong><small>Across assigned interns</small><em>On track</em></button>
-      <button onClick={() => setActive("Visit Schedule")}><span>Completed visits</span><strong>{visits.filter(v => v.status === "Completed").length}</strong><small>This internship cycle</small><em>Verified</em></button>
+      <article className="supervisor-metric-card"><span>Assigned interns</span><strong>{dashboardData.kpis.assignedInterns || assignedInterns.length}</strong><small>Across partner schools</small><em>Active</em></article>
+      <article className="supervisor-metric-card"><span>Pending reviews</span><strong>{pending}</strong><small>Lesson notes awaiting action</small><em>Action needed</em></article>
+      <article className="supervisor-metric-card"><span>Upcoming visits</span><strong>{dashboardData.kpis.upcomingVisits || visits.filter(v => v.status === "Scheduled").length}</strong><small>Over the next 14 days</small><em>Scheduled</em></article>
+      <article className="supervisor-metric-card"><span>Average IRB progress</span><strong>{average}%</strong><small>Across assigned interns</small><em>On track</em></article>
+      <article className="supervisor-metric-card"><span>Completed visits</span><strong>{dashboardData.kpis.completedVisits || visits.filter(v => v.status === "Completed").length}</strong><small>This internship cycle</small><em>Visited</em></article>
     </section>
     <section className="supervisor-analytics-bottom">
       <article className="module-card progress-snapshot-card"><DashboardCardHead title="Intern progress snapshot" copy={`Current ${period.toLowerCase()} IRB outcomes for assigned students.`} action={() => setActive("Assigned Interns")}/><div className="snapshot-list">{assignedInterns.length ? assignedInterns.map(intern => <div key={intern.id}><span><strong>{intern.name}</strong><small>{intern.school}</small></span><b>{intern.irb}%</b><i><em style={{ width: `${intern.irb}%` }}/></i></div>) : <EmptyState copy="Assigned interns will appear when the coordinator approves placements for this supervisor."/>}</div></article>
@@ -149,6 +178,14 @@ function InternWorkspace({ active, assignedInterns, notes, visits, workflow, set
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [visitDetail, setVisitDetail] = useState<Visit | null>(null);
   const [rescheduleVisit, setRescheduleVisit] = useState<Visit | null>(null);
+
+  useEffect(() => {
+    setSelectedNote(null);
+    setSelectedIntern(null);
+    setScheduleOpen(false);
+    setVisitDetail(null);
+    setRescheduleVisit(null);
+  }, [active]);
 
   function review(note: LessonNote, value: "Approved" | "Revision") {
     setWorkflow({
@@ -203,6 +240,15 @@ function InternWorkspace({ active, assignedInterns, notes, visits, workflow, set
     notify("Visit rescheduled. The student can now see the updated date.");
   }
 
+  async function raiseSupport(form: FormData) {
+    await createSupportTicket({ subject: String(form.get("subject") || "Supervisor support request"), message: String(form.get("message") || ""), priority: String(form.get("priority") || "Normal"), requesterName: supervisorName, requesterRole: "supervisor" });
+    notify("Support ticket submitted to the coordinator support desk.");
+  }
+
+  if (selectedNote) return <LessonReviewPage note={selectedNote} close={() => setSelectedNote(null)} onApprove={() => { review(selectedNote, "Approved"); setSelectedNote(null); }} onRevise={() => { review(selectedNote, "Revision"); setSelectedNote(null); }}/>;
+
+  if (active === "Support") return <><section className="module-head"><div><span>SUPPORT DESK</span><h1>Raise support ticket</h1><p>Send an issue to coordinators. They will respond through the support queue.</p></div></section><section className="module-card admin-settings-panel"><form onSubmit={event=>{event.preventDefault();raiseSupport(new FormData(event.currentTarget));event.currentTarget.reset()}}><div className="role-settings-fields"><label><span>Subject</span><input required name="subject" placeholder="What do you need help with?"/></label><label><span>Priority</span><select name="priority" defaultValue="Normal"><option>Low</option><option>Normal</option><option>High</option></select></label></div><label className="admin-textarea"><span>Message</span><textarea required name="message" placeholder="Describe the issue for the coordinator..."/></label><div className="change-password-foot"><small>Tickets appear instantly on the coordinator Support Desk.</small><button className="primary">Submit ticket</button></div></form></section></>;
+
   if (active === "Profile") return <section className="module-card portal-settings"><div className="section-heading"><div><h2>Profile</h2><p>Your supervisor identity and assigned programme details.</p></div></div><div className="profile-detail-banner"><div className="supervisor-avatar">SO</div><span><strong>{supervisorName}</strong><small>{supervisorEmail}</small><em>Field Supervisor · Ashanti, Eastern and Bono</em></span></div></section>;
   if (active === "Settings") return <UserSettings role="supervisor" name={supervisorName} email={supervisorEmail} onSaved={notify}/>;
   if (active === "Appearance") return <AppearanceSettings role="supervisor"/>;
@@ -210,9 +256,7 @@ function InternWorkspace({ active, assignedInterns, notes, visits, workflow, set
 
   if (active === "Assigned Interns") return <section className="module-card"><div className="section-heading"><div><h2>Assigned interns</h2><p>Students currently under your supervision.</p></div></div><InternTable assignedInterns={assignedInterns} onView={setSelectedIntern}/>{selectedIntern && <InternDetails intern={selectedIntern} student={workflow.students.find(item => item.name === selectedIntern.name)} notes={workflow.notes.filter(item => item.student === selectedIntern.name)} visits={workflow.visits.filter(item => item.student === selectedIntern.name)} close={() => setSelectedIntern(null)}/>}</section>;
 
-  if (active === "Lesson Reviews") return <section className="module-card"><div className="section-heading"><div><h2>Lesson reviews</h2><p>Approve submitted lesson notes or request revision.</p></div></div><div className="table-scroll"><table><thead><tr><th>Lesson</th><th>Student</th><th>Subject</th><th>Topic</th><th>Mentor</th><th>Supervisor</th><th>Action</th></tr></thead><tbody>{notes.map(note => <tr key={note.id}><td><strong>{note.id}</strong></td><td>{note.student}</td><td>{note.subject}</td><td>{note.topic}</td><td><Status value={note.mentor}/></td><td><Status value={note.supervisor}/></td><td>{note.supervisor === "Pending" ? <div className="row-actions"><button className="approve" onClick={() => review(note, "Approved")}>Approve</button><button onClick={() => review(note, "Revision")}>Revise</button><button onClick={() => setSelectedNote(note)}>View</button></div> : <button className="secondary" onClick={() => setSelectedNote(note)}>View review</button>}</td></tr>)}</tbody></table>{!notes.length && <EmptyState copy="Lesson notes from assigned interns will appear here."/>}</div>{selectedNote && <NoteDetails note={selectedNote} close={() => setSelectedNote(null)} onApprove={() => { review(selectedNote, "Approved"); setSelectedNote(null); }} onRevise={() => { review(selectedNote, "Revision"); setSelectedNote(null); }}/>}</section>;
-
-  if (active === "Post-Internship") return <SupervisorPostInternship assignedInterns={assignedInterns} notify={notify}/>;
+  if (active === "Lesson Reviews") return <section className="module-card"><div className="section-heading"><div><h2>Lesson reviews</h2><p>Open the full lesson note, comment against each section and approve or request revision.</p></div></div><div className="table-scroll"><table><thead><tr><th>Lesson</th><th>Student</th><th>Subject</th><th>Topic</th><th>Mentor</th><th>Supervisor</th><th>Action</th></tr></thead><tbody>{notes.map(note => <tr key={note.id}><td><strong>{note.id}</strong></td><td>{note.student}</td><td>{note.subject}</td><td>{note.topic}</td><td><Status value={note.mentor}/></td><td><Status value={note.supervisor}/></td><td><button className="secondary table-review-button" onClick={() => setSelectedNote(note)}>{note.supervisor === "Pending" ? "Open review" : "View review"}</button></td></tr>)}</tbody></table>{!notes.length && <EmptyState copy="Lesson notes from assigned interns will appear here."/>}</div></section>;
 
   return <section className="module-card"><div className="section-heading"><div><h2>Visit schedule</h2><p>Inspect coordinator visit ranges, reschedule exact supervision dates and complete visits.</p></div><button className="primary" onClick={() => setScheduleOpen(true)}>＋ Add visit window</button></div><div className="supervisor-action-list">{visits.length ? visits.map(visit => <article key={visit.id}><div className="person"><b>{initials(visit.student)}</b><span><strong>{visit.student}</strong><small>{visit.school}</small></span></div><span>{formatVisitWindow(visit)} · {visit.time}</span><Status value={visit.status}/><div className="row-actions"><button onClick={() => setVisitDetail(visit)}>View</button><button disabled={visit.status === "Completed"} onClick={() => setRescheduleVisit(visit)}>Reschedule</button><button className="primary" disabled={visit.status === "Completed"} onClick={() => complete(visit)}>{visit.status === "Completed" ? "Completed" : "Mark completed"}</button></div></article>) : <EmptyState copy="No supervisor visits have been scheduled yet."/>}</div>{scheduleOpen && <SupervisorModal title="Add supervision window" close={() => setScheduleOpen(false)} onSubmit={schedule}><Select name="student" label="Intern" options={assignedInterns.map(item => item.name)}/><Field name="school" label="School fallback" defaultValue={assignedInterns[0]?.school || ""}/><Field name="startDate" label="Window start date" type="date"/><Field name="endDate" label="Window end date" type="date"/><Field name="time" label="Preferred time" type="time"/></SupervisorModal>}{rescheduleVisit && <SupervisorModal title="Reschedule visit" close={() => setRescheduleVisit(null)} onSubmit={reschedule}><Field name="rescheduledDate" label="New exact visit date" type="date" defaultValue={rescheduleVisit.rescheduledDate || rescheduleVisit.startDate}/><Field name="time" label="New time" type="time" defaultValue={rescheduleVisit.time}/><Field name="rescheduleReason" label="Reason" defaultValue={rescheduleVisit.rescheduleReason || ""}/><p className="form-note">The student will see this updated supervision date immediately.</p></SupervisorModal>}{visitDetail && <VisitDetails visit={visitDetail} close={() => setVisitDetail(null)} onComplete={() => { complete(visitDetail); setVisitDetail(null); }}/>}</section>;
 }
@@ -225,21 +269,35 @@ function InternDetails({ intern, student, notes, visits, close }: { intern: Assi
   return <InfoModal title={intern.name} close={close} rows={[["Student ID", student?.id || intern.id], ["Email", student?.email || "—"], ["School", intern.school], ["Municipality", intern.municipality], ["Community", intern.community], ["Region", intern.region], ["IRB progress", `${intern.irb}%`], ["Lesson notes", String(notes.length)], ["Visits", String(visits.length)]]}/>;
 }
 
-function NoteDetails({ note, close, onApprove, onRevise }: { note: LessonNote; close: () => void; onApprove: () => void; onRevise: () => void }) {
-  return <div className="modal-backdrop" onMouseDown={close}><div className="modal" onMouseDown={event => event.stopPropagation()}><div className="modal-head"><div><span>LESSON REVIEW</span><h2>{note.subject}</h2></div><button type="button" onClick={close}>×</button></div><div className="modal-fields"><label className="field"><span>Student</span><input readOnly value={note.student}/></label><label className="field"><span>Topic</span><input readOnly value={note.topic}/></label><label className="field"><span>Week</span><input readOnly value={note.week}/></label><label className="field"><span>Mentor review</span><input readOnly value={note.mentor}/></label><label className="field"><span>Supervisor review</span><input readOnly value={note.supervisor}/></label></div><div className="modal-foot"><button type="button" className="secondary" onClick={close}>Close</button><button type="button" onClick={onRevise}>Request revision</button><button type="button" className="primary" onClick={onApprove}>Approve</button></div></div></div>;
+function LessonReviewPage({ note, close, onApprove, onRevise }: { note: LessonNote; close: () => void; onApprove: () => void; onRevise: () => void }) {
+  const [comments, setComments] = useState<Record<string, string>>({});
+  const dayRows = note.days?.length ? note.days : [{ day: "Lesson day", starter: note.phaseStarter || "", main: note.phaseMain || "", reflection: note.phaseReflection || "" }];
+  function setComment(key: string, value: string) {
+    setComments(current => ({ ...current, [key]: value }));
+  }
+  return <section className="lesson-review-page">
+    <div className="module-head lesson-review-head"><div><span>LESSON REVIEW</span><h1>{note.subject}</h1><p>{note.student} · {note.topic} · {note.week}{note.weekEnding ? ` · Week ending ${formatDate(note.weekEnding)}` : ""}</p></div><div className="row-actions"><button className="secondary" onClick={close}>← Back to reviews</button><button onClick={onRevise}>Request revision</button><button className="primary" onClick={onApprove}>Approve</button></div></div>
+    <div className="lesson-review-layout">
+      <article className="module-card lesson-review-sheet">
+        <header><span>AAMUSTED · CSTSI</span><strong>{note.planType || "Weekly"} Lesson Plan</strong><small>Student submitted lesson note</small></header>
+        <h2>{note.topic}</h2>
+        <div className="lesson-review-meta plain"><span><b>Student</b>{note.student}</span><span><b>Class</b>{note.className || "Not specified"}</span><span><b>Mentor</b>{note.mentor}</span><span><b>Supervisor</b>{note.supervisor}</span></div>
+        <ReviewBlock title="Learning indicator(s)" value={note.learningIndicators || "No learning indicators supplied."}/>
+        <ReviewBlock title="Performance indicator" value={note.performanceIndicators || "No performance indicator supplied."}/>
+        <ReviewBlock title="Teaching / Learning resources" value={note.resources || "No resources supplied."}/>
+        {(note.planType || "Weekly") === "Weekly" ? <div className="lesson-review-days"><table><thead><tr><th>Day</th><th>Starter</th><th>Main</th><th>Reflection</th></tr></thead><tbody>{dayRows.map(day => <tr key={day.day}><td><strong>{day.day}</strong></td><td>{day.starter || "—"}</td><td>{day.main || "—"}</td><td>{day.reflection || "—"}</td></tr>)}</tbody></table></div> : <><ReviewBlock title="Term overview" value={note.termOverview || "No term overview supplied."}/><ReviewBlock title="Assessment plan" value={note.assessmentPlan || "No assessment plan supplied."}/></>}
+      </article>
+      <aside className="module-card lesson-review-side"><h2>Supervisor decision</h2><p>Write comments at the exact sections that need attention, then approve or request revision.</p><label><span>Overall comment</span><textarea value={comments.overall || ""} onChange={event => setComment("overall", event.target.value)} placeholder="Summarise the decision or required changes"/></label><div><button onClick={onRevise}>Request revision</button><button className="primary" onClick={onApprove}>Approve lesson note</button></div></aside>
+    </div>
+  </section>;
+}
+
+function ReviewBlock({ title, value }: { title: string; value: string }) {
+  return <section className="lesson-review-block no-comment"><div><h3>{title}</h3><p>{value}</p></div></section>;
 }
 
 function VisitDetails({ visit, close, onComplete }: { visit: Visit; close: () => void; onComplete: () => void }) {
   return <InfoModal title={`Visit ${visit.id}`} close={close} rows={[["Student", visit.student], ["School", visit.school], ["Supervisor", visit.supervisor], ["Coordinator window", `${formatDate(visit.startDate)} to ${formatDate(visit.endDate)}`], ["Exact/rescheduled date", visit.rescheduledDate ? formatDate(visit.rescheduledDate) : "Not selected yet"], ["Time", visit.time], ["Reason", visit.rescheduleReason || "—"], ["Status", visit.status]]} action={visit.status === "Completed" ? undefined : { label: "Mark completed", run: onComplete }}/>;
-}
-
-function SupervisorPostInternship({ assignedInterns, notify }: { assignedInterns: AssignedIntern[]; notify: (message: string) => void }) {
-  const [records, setRecords] = useState(() => assignedInterns.slice(0, 4).map((intern, index) => ({ id: `PI-${421 - index}`, student: intern.name, school: intern.school, material: ["Teaching Portfolio", "Research Report", "Reflection Report", "Final assessment form"][index % 4], status: index === 0 ? "Pending" : "Received" })));
-  function mark(id: string, status: string) {
-    setRecords(records.map(record => record.id === id ? { ...record, status } : record));
-    notify(`Post-internship material marked ${status.toLowerCase()}.`);
-  }
-  return <section className="module-card"><div className="section-heading"><div><h2>Post-internship materials</h2><p>Supervisors receive and review final materials. Coordinator keeps only backup/received records.</p></div></div><div className="table-scroll"><table><thead><tr><th>Reference</th><th>Student</th><th>School</th><th>Material</th><th>Status</th><th>Action</th></tr></thead><tbody>{records.map(record => <tr key={record.id}><td><strong>{record.id}</strong></td><td>{record.student}</td><td>{record.school}</td><td>{record.material}</td><td><Status value={record.status}/></td><td><div className="row-actions"><button className="approve" onClick={() => mark(record.id, "Received")}>Received</button><button onClick={() => mark(record.id, "Revision")}>Revision</button></div></td></tr>)}</tbody></table>{!records.length && <EmptyState copy="Post-internship materials from assigned interns will appear here."/>}</div></section>;
 }
 
 function SupervisorModal({ title, close, onSubmit, children }: { title: string; close: () => void; onSubmit: (form: FormData) => void; children: React.ReactNode }) {

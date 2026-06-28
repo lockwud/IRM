@@ -1,0 +1,161 @@
+export type GhanaMunicipality = { name: string; communities: string[] };
+export type GhanaRegion = { name: string; municipalities: GhanaMunicipality[] };
+
+export const ghanaLocations: GhanaRegion[] = [
+  { name: "Ahafo", municipalities: [
+    { name: "Asunafo North Municipal", communities: ["Goaso", "Mim", "Akrodie", "Ayomso"] },
+    { name: "Asunafo South District", communities: ["Kukuom", "Noberkaw", "Kwapong", "Abuom"] },
+    { name: "Asutifi North District", communities: ["Kenyasi", "Ntotroso", "Wamahinso", "Gyedu"] },
+    { name: "Asutifi South District", communities: ["Hwidiem", "Acherensua", "Dadiesoaba", "Nkaseim"] },
+    { name: "Tano North Municipal", communities: ["Duayaw Nkwanta", "Yamfo", "Bomaa", "Susanso"] },
+    { name: "Tano South Municipal", communities: ["Bechem", "Techimantia", "Derma", "Dwomo"] },
+  ] },
+  { name: "Ashanti", municipalities: [
+    { name: "Adansi Asokwa District", communities: ["Adansi Asokwa", "Fumso", "Anhwiaso", "Bodwesango"] },
+    { name: "Adansi North District", communities: ["Fomena", "Dompoase", "Kusa", "Medoma"] },
+    { name: "Adansi South District", communities: ["New Edubiase", "Akrofuom", "Sikaman", "Akwansrem"] },
+    { name: "Afigya Kwabre North District", communities: ["Boamang", "Tetrem", "Ahenkro", "Kyerekrom"] },
+    { name: "Afigya Kwabre South District", communities: ["Kodie", "Atimatim", "Nkukua Buoho", "Ankaase"] },
+    { name: "Ahafo Ano North Municipal", communities: ["Tepa", "Mabang", "Anyinasuso", "Manfo"] },
+    { name: "Ahafo Ano South East District", communities: ["Adugyama", "Bienso", "Sabronum", "Wioso"] },
+    { name: "Ahafo Ano South West District", communities: ["Mankranso", "Kunsu", "Mpasaso", "Beposo"] },
+    { name: "Akrofuom District", communities: ["Akrofuom", "Ampunyase", "Wamase", "Nkoransa"] },
+    { name: "Amansie Central District", communities: ["Jacobu", "Fiankoma", "Numereso", "Tweapease"] },
+    { name: "Amansie South District", communities: ["Manso Adubia", "Datano", "Manso Nkwanta", "Keniago"] },
+    { name: "Amansie West District", communities: ["Manso Nkwanta", "Essuowin", "Antoakrom", "Pakyi"] },
+    { name: "Asante Akim Central Municipal", communities: ["Konongo", "Odumase", "Patriensa", "Dwease"] },
+    { name: "Asante Akim North Municipal", communities: ["Agogo", "Hwidiem", "Juansa", "Domeabra"] },
+    { name: "Asante Akim South Municipal", communities: ["Juaso", "Bompata", "Obogu", "Asankare"] },
+    { name: "Asokore Mampong Municipal", communities: ["Asokore Mampong", "Aboabo", "Sawaba", "Sepe Timpom"] },
+    { name: "Asokwa Municipal", communities: ["Asokwa", "Ahinsan", "Kaase", "Gyinyase"] },
+    { name: "Atwima Kwanwoma District", communities: ["Twedie", "Foase", "Trabuom", "Ahenema Kokoben"] },
+    { name: "Atwima Mponua District", communities: ["Nyinahin", "Otaakrom", "Toase", "Kwanfinfi"] },
+    { name: "Atwima Nwabiagya Municipal", communities: ["Nkawie", "Toase", "Abuakwa", "Asuofua"] },
+    { name: "Atwima Nwabiagya North District", communities: ["Barekese", "Fufuo", "Amanchia", "Asuofua"] },
+    { name: "Bekwai Municipal", communities: ["Bekwai", "Kokofu", "Anwiankwanta", "Dominase", "Senfi", "Poano", "Amoaful", "Asanso", "Serwaa"] },
+    { name: "Bosome Freho District", communities: ["Asiwa", "Anyanso", "Duase", "Nsuta"] },
+    { name: "Bosomtwe District", communities: ["Kuntanase", "Jachie", "Pramso", "Abono"] },
+    { name: "Ejisu Municipal", communities: ["Ejisu", "Kwaso", "Onwe", "Besease"] },
+    { name: "Ejura Sekyedumase Municipal", communities: ["Ejura", "Sekyedumase", "Hiawoanwu", "Dromankuma"] },
+    { name: "Kumasi Metropolitan", communities: ["Adum", "Bantama", "Asafo", "Asokwa", "Atonsu", "Tafo", "Suame", "Ayigya", "Patasi"] },
+    { name: "Kwabre East Municipal", communities: ["Mamponteng", "Kenase", "Ntonso", "Ahwiaa"] },
+    { name: "Mampong Municipal", communities: ["Mampong", "Kofiase", "Benim", "Kyeremfaso"] },
+    { name: "Obuasi East District", communities: ["Tutuka", "Wawase", "Boete", "Kwabenakwa"] },
+    { name: "Obuasi Municipal", communities: ["Obuasi", "Kunka", "Brahabebome", "Mensakrom"] },
+    { name: "Oforikrom Municipal", communities: ["Oforikrom", "Ayigya", "Kotei", "Oduom", "Kentinkrono"] },
+    { name: "Old Tafo Municipal", communities: ["Old Tafo", "Pankrono", "Tafo Nhyiaeso", "Adompom"] },
+    { name: "Sekyere Afram Plains District", communities: ["Drobonso", "Dawia", "Kumawu Afram Plains", "Fumsua"] },
+    { name: "Sekyere Central District", communities: ["Nsuta", "Beposo", "Kwamang", "Atonsu"] },
+    { name: "Sekyere East District", communities: ["Effiduase", "Asokore", "Oyoko", "Senchi"] },
+    { name: "Sekyere Kumawu District", communities: ["Kumawu", "Bodomase", "Besoro", "Wonoo"] },
+    { name: "Sekyere South District", communities: ["Agona", "Wiamoase", "Jamasi", "Bipoa"] },
+    { name: "Suame Municipal", communities: ["Suame", "Kronum", "Magazine", "Maakro"] },
+  ] },
+  { name: "Bono", municipalities: [
+    { name: "Berekum East Municipal", communities: ["Berekum", "Kato", "Senase", "Mpatasie"] },
+    { name: "Berekum West District", communities: ["Jinijini", "Biadan", "Namasua", "Benchema"] },
+    { name: "Dormaa Central Municipal", communities: ["Dormaa Ahenkro", "Amasu", "Aboabo", "Koraso"] },
+    { name: "Dormaa East District", communities: ["Wamfie", "Asuotiano", "Kyeremasu", "Akontanim"] },
+    { name: "Dormaa West District", communities: ["Nkrankwanta", "Diabaa", "Kwakuanya", "Yaakrom"] },
+    { name: "Jaman North District", communities: ["Sampa", "Goka", "Suma Ahenkro", "Duadaso"] },
+    { name: "Jaman South Municipal", communities: ["Drobo", "Japekrom", "Adamsu", "Kwasibourkrom"] },
+    { name: "Sunyani Municipal", communities: ["Sunyani", "New Town", "Penkwase", "Abesim", "Nkwabeng"] },
+    { name: "Sunyani West Municipal", communities: ["Odumase", "Fiapre", "Chiraa", "Nsoatre"] },
+    { name: "Tain District", communities: ["Nsawkaw", "Badu", "Seikwa", "Debibi"] },
+    { name: "Wenchi Municipal", communities: ["Wenchi", "Subinso", "Nchiraa", "Awisa"] },
+  ] },
+  { name: "Bono East", municipalities: [
+    { name: "Atebubu-Amantin Municipal", communities: ["Atebubu", "Amantin", "Jato Zongo", "Mem"] },
+    { name: "Kintampo North Municipal", communities: ["Kintampo", "New Longoro", "Babator", "Gulumpe"] },
+    { name: "Kintampo South District", communities: ["Jema", "Apesika", "Anyima", "Amoma"] },
+    { name: "Nkoranza North District", communities: ["Busunya", "Dromankese", "Kranka", "Yefri"] },
+    { name: "Nkoranza South Municipal", communities: ["Nkoranza", "Donkro Nkwanta", "Akuma", "Bredi"] },
+    { name: "Techiman Municipal", communities: ["Techiman", "Tanoso", "Tuobodom", "Kenteng"] },
+    { name: "Techiman North District", communities: ["Tuobodom", "Aworowa", "Offuman", "Krobo"] },
+  ] },
+  { name: "Central", municipalities: [
+    { name: "Cape Coast Metropolitan", communities: ["Cape Coast", "Pedu", "Abura", "Bakaano"] },
+    { name: "Awutu Senya East Municipal", communities: ["Kasoa", "Opeikuma", "Ofaakor", "Walantu"] },
+    { name: "Komenda Edina Eguafo Abrem Municipal", communities: ["Elmina", "Komenda", "Eguafo", "Kissi"] },
+    { name: "Mfantsiman Municipal", communities: ["Saltpond", "Mankessim", "Anomabo", "Yamoransa"] },
+    { name: "Agona West Municipal", communities: ["Agona Swedru", "Nkum", "Nyakrom", "Bobikuma"] },
+  ] },
+  { name: "Eastern", municipalities: [
+    { name: "Akuapem North Municipal", communities: ["Akropong", "Amanokrom", "Mampong", "Larteh"] },
+    { name: "Akuapem South Municipal", communities: ["Aburi", "Kitase", "Ayi Mensah", "Pokrom"] },
+    { name: "New Juaben South Municipal", communities: ["Koforidua", "Betom", "Srodae", "Adweso"] },
+    { name: "New Juaben North Municipal", communities: ["Effiduase", "Asokore", "Oyoko", "Jumapo"] },
+    { name: "Birim Central Municipal", communities: ["Akim Oda", "Aboabo", "Akim Swedru", "Manso"] },
+  ] },
+  { name: "Greater Accra", municipalities: [
+    { name: "Accra Metropolitan", communities: ["Accra Central", "Osu", "Adabraka", "Jamestown"] },
+    { name: "Ablekuma West Municipal", communities: ["Dansoman", "Mataheko", "Sakaman", "Glefe"] },
+    { name: "Adentan Municipal", communities: ["Adentan", "Frafraha", "Ashaley Botwe", "Nmai Dzorn"] },
+    { name: "Ga East Municipal", communities: ["Abokobi", "Haatso", "Dome", "Kwabenya"] },
+    { name: "Tema Metropolitan", communities: ["Tema Community 1", "Tema Community 2", "Tema Community 7", "Tema New Town"] },
+  ] },
+  { name: "Northern", municipalities: [
+    { name: "Tamale Metropolitan", communities: ["Tamale", "Sagnarigu", "Lamashegu", "Nyohini"] },
+    { name: "Sagnarigu Municipal", communities: ["Sagnarigu", "Kalpohin", "Kukuo", "Choggu"] },
+    { name: "Yendi Municipal", communities: ["Yendi", "Gbungbaliga", "Kuga", "Adibo"] },
+  ] },
+  { name: "Oti", municipalities: [{ name: "Krachi East Municipal", communities: ["Dambai", "Tokuroano", "Dormabin", "Asukawkaw"] }, { name: "Nkwanta South Municipal", communities: ["Nkwanta", "Tutukpene", "Brewaniase", "Kecheibi"] }] },
+  { name: "Savannah", municipalities: [{ name: "West Gonja Municipal", communities: ["Damongo", "Larabanga", "Busunu", "Mognori"] }, { name: "East Gonja Municipal", communities: ["Salaga", "Kpembe", "Makango", "Kafaba"] }] },
+  { name: "Upper East", municipalities: [{ name: "Bolgatanga Municipal", communities: ["Bolgatanga", "Zuarungu", "Sumbrungu", "Tindonsobligo"] }, { name: "Bawku Municipal", communities: ["Bawku", "Mognori", "Pusiga", "Zebilla"] }] },
+  { name: "Upper West", municipalities: [{ name: "Wa Municipal", communities: ["Wa", "Kambali", "Dobile", "Bamahu"] }, { name: "Nandom Municipal", communities: ["Nandom", "Ko", "Baseble", "Piiri"] }] },
+  { name: "Volta", municipalities: [{ name: "Ho Municipal", communities: ["Ho", "Ahoe", "Bankoe", "Dome"] }, { name: "Keta Municipal", communities: ["Keta", "Anloga", "Abor", "Dzelukope"] }] },
+  { name: "Western", municipalities: [{ name: "Sekondi Takoradi Metropolitan", communities: ["Sekondi", "Takoradi", "Kwesimintsim", "Effia"] }, { name: "Tarkwa-Nsuaem Municipal", communities: ["Tarkwa", "Nsuta", "Bonsa", "Tamso"] }] },
+  { name: "Western North", municipalities: [{ name: "Sefwi Wiawso Municipal", communities: ["Sefwi Wiawso", "Asawinso", "Boako", "Punikrom"] }, { name: "Bibiani-Anhwiaso-Bekwai Municipal", communities: ["Bibiani", "Anhwiaso", "Bekwai", "Sefwi Bekwai"] }] },
+  { name: "North East", municipalities: [{ name: "West Mamprusi Municipal", communities: ["Walewale", "Wulugu", "Janga", "Nalerigu"] }, { name: "East Mamprusi Municipal", communities: ["Nalerigu", "Gambaga", "Langbinsi", "Sakogu"] }] },
+];
+
+const extraCommunities: Record<string, string[]> = {
+  "Bekwai Municipal": ["Serwaaba", "Serwaa", "Kokofu", "Huntado", "Essumeja", "Anwiam", "Bogyawe", "Dotom", "Abodom", "Dadease", "Aboaso", "Brosankro", "Besease", "Gyasikrom", "Ofoase Kokoben"],
+  "Kumasi Metropolitan": ["Kejetia", "Roman Hill", "Fante New Town", "Dichemso", "Manhyia", "Ashtown", "Amakom", "Nhyiaeso", "Danyame", "Ridge", "North Suntreso", "South Suntreso", "Krofrom", "Buokrom", "Kwadaso", "Santasi", "Daban", "Aprade", "Anloga Junction", "Aboabo"],
+  "Asokwa Municipal": ["Ahinsan Estate", "Ahinsan Market", "Atonsu Agogo", "Atonsu Bokuro", "Agogo", "Chirapatre", "Dompoase", "Kuwait", "Gyinyase", "Kaase Industrial Area"],
+  "Oforikrom Municipal": ["Ayeduase", "Bomso", "KNUST", "Ayigya Zongo", "Emena", "Boadi", "Appiadu", "Aprade", "Kotei", "Kentinkrono", "Oduom", "Anwomaso"],
+  "Suame Municipal": ["Suame Magazine", "Kronum", "Maakro", "Anomangye", "Bremang", "Tafo Nhyiaeso", "Kotoko", "Abrepo Junction"],
+  "Old Tafo Municipal": ["Old Tafo Mile 3", "Tafo 4 Miles", "Adompom", "Pankrono Estate", "Pankrono North", "Krofrom East", "Moshie Zongo"],
+  "Ejisu Municipal": ["Besease", "Kwaso", "Onwe", "Bonwire", "Fumesua", "Achiase", "Kwaso", "Donyina", "Krapa", "Tikrom", "Essienimpong"],
+  "Bosomtwe District": ["Kuntanase", "Jachie", "Pramso", "Abono", "Esreso", "Feyiase", "Aputuogya", "Esereso", "Piase", "Beposo"],
+  "Atwima Kwanwoma District": ["Ahenema Kokoben", "Twedie", "Foase", "Trabuom", "Trede", "Nweneso No. 1", "Nweneso No. 2", "Brofoyedru", "Kromoase", "Adumasa"],
+  "Atwima Nwabiagya Municipal": ["Nkawie", "Toase", "Abuakwa", "Asuofua", "Akropong", "Sepaase", "Amanchia", "Koforidua", "Abira", "Nerebehi"],
+  "Atwima Nwabiagya North District": ["Barekese", "Fufuo", "Amanchia", "Asuofua", "Kumi", "Kobeng", "Wioso", "Mfensi", "Owabi"],
+  "Kwabre East Municipal": ["Mamponteng", "Ntonso", "Ahwiaa", "Kenase", "Meduma", "Antoa", "Adanwomase", "Fawoade", "Asonomaso", "Wadie Adwumakase"],
+  "Afigya Kwabre South District": ["Kodie", "Atimatim", "Nkukua Buoho", "Ankaase", "Afrancho", "Heman", "Aboabogya", "Kyekyewere", "Kenyasi"],
+  "Mampong Municipal": ["Mampong", "Kofiase", "Benim", "Kyeremfaso", "Bosofour", "Asante Mampong", "Daaho", "Beposo", "Atonsuagya"],
+  "Obuasi Municipal": ["Obuasi Central", "Brahabebome", "Tutuka", "Boete", "Kunka", "Mensakrom", "Anyinam", "Bongobiri", "Sanso", "Gausu"],
+  "Obuasi East District": ["Tutuka", "Wawase", "Boete", "Kwabenakwa", "Dokyiwa", "Bossman", "Akaporiso", "Jimiso"],
+  "Asokore Mampong Municipal": ["Aboabo No. 1", "Aboabo No. 2", "Sepe", "Sawaba", "Asawase", "New Zongo", "Parkoso", "Adukrom", "Sawaaba", "Akwatialine"],
+  "Cape Coast Metropolitan": ["UCC", "Pedu", "Abura", "Bakaano", "Kotokuraba", "Apewosika", "Ekon", "Duakor", "Nkanfoa", "Ankaful"],
+  "Awutu Senya East Municipal": ["Kasoa", "Opeikuma", "Ofaakor", "Walantu", "Nyanyano", "Adam Nana", "Krispo City", "CP", "Lamptey Mills", "Akweley"],
+  "Accra Metropolitan": ["Osu", "Adabraka", "Jamestown", "Ussher Town", "Tudu", "Makola", "Ridge", "North Ridge", "Asylum Down", "Kokomlemle", "Cantonments", "Labone"],
+  "Ablekuma West Municipal": ["Dansoman", "Mataheko", "Sakaman", "Glefe", "Opetekwei", "Shiabu", "Agege", "Last Stop", "Russia", "Control"],
+  "Adentan Municipal": ["Adentan", "Frafraha", "Ashaley Botwe", "Nmai Dzorn", "New Legon", "Ogbojo", "Sraha", "Commandos", "Barrier"],
+  "Ga East Municipal": ["Abokobi", "Haatso", "Dome", "Kwabenya", "Ashongman", "Agbogba", "Pantang", "Atomic", "Ablorh Adjei"],
+  "Tema Metropolitan": ["Community 1", "Community 2", "Community 4", "Community 5", "Community 7", "Community 8", "Community 9", "Community 11", "Community 12", "Tema New Town", "Sakumono"],
+  "New Juaben South Municipal": ["Koforidua", "Betom", "Srodae", "Adweso", "Agyeiwaa Lodge", "Anlo Town", "Mile 50", "Osabene", "Nyamekrom", "Ada"],
+  "Akuapem North Municipal": ["Akropong", "Amanokrom", "Mampong", "Larteh", "Mamfe", "Tutu", "Obosomase", "Abiriw", "Awukugua", "Adukrom"],
+  "Ho Municipal": ["Ho Bankoe", "Ho Dome", "Ahoe", "Little Bethlehem", "Barracks", "Trafalgar", "Heve", "Sokode Lokoe", "Nurses Flats"],
+  "Sekondi Takoradi Metropolitan": ["Sekondi", "Takoradi", "Kwesimintsim", "Effia", "Anaji", "Market Circle", "Beach Road", "Airport Ridge", "Ntankoful", "Essikado"],
+  "Tamale Metropolitan": ["Lamashegu", "Nyohini", "Aboabo", "Tishigu", "Zogbeli", "Kalpohin", "Sakasaka", "Vittin", "Dabokpa", "Gumani"],
+  "Sunyani Municipal": ["Sunyani", "New Town", "Penkwase", "Abesim", "Nkwabeng", "Estate", "Area 1", "Area 2", "Area 4", "Berlin Top", "Magazine"],
+  "Techiman Municipal": ["Techiman", "Tanoso", "Tuobodom", "Kenteng", "Hansua", "Tadieso", "Aworowa", "Krobo", "Zongo", "Dwomor"],
+  "Wa Municipal": ["Wa Central", "Kambali", "Dobile", "Bamahu", "Kpaguri", "Mangu", "Tendamba", "Kontah", "Sompah"],
+  "Bolgatanga Municipal": ["Bolgatanga", "Zuarungu", "Sumbrungu", "Tindonsobligo", "Yorogo", "Soe", "Bukere", "Daporetindongo"],
+};
+
+for (const region of ghanaLocations) {
+  for (const municipality of region.municipalities) {
+    const additions = extraCommunities[municipality.name] || [];
+    municipality.communities = Array.from(new Set([...municipality.communities, ...additions])).sort((a, b) => a.localeCompare(b));
+  }
+}
+
+export const ghanaRegions = ghanaLocations.map((region) => region.name);
+export function getMunicipalities(region: string) {
+  return ghanaLocations.find((item) => item.name === region)?.municipalities.map((item) => item.name) || [];
+}
+export function getCommunities(region: string, municipality: string) {
+  return ghanaLocations.find((item) => item.name === region)?.municipalities.find((item) => item.name === municipality)?.communities || [];
+}

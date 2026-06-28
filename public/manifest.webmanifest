@@ -2,11 +2,18 @@
   "name": "AAMUSTED SIP Management System",
   "short_name": "SIP Portal",
   "description": "Manage placements, lesson notes, visits and internship records.",
-  "start_url": "/",
+  "start_url": "/login",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#f8fafc",
   "theme_color": "#4f46e5",
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Student Portal", "short_name": "Student", "url": "/login?role=student", "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }] },
+    { "name": "Supervisor Portal", "short_name": "Supervisor", "url": "/login?role=supervisor", "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }] },
+    { "name": "Coordinator Portal", "short_name": "Coordinator", "url": "/login?role=coordinator", "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }] }
   ]
 }

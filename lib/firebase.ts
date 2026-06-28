@@ -1,5 +1,6 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getMessaging, getToken, isSupported, onMessage, type MessagePayload } from "firebase/messaging";
+import { registerNotificationDevice } from "@/lib/api-client";
 
 export const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
@@ -53,12 +54,8 @@ export async function enablePushNotifications() {
   });
   if (!token) throw new Error("Firebase did not return a device token.");
 
-  const response = await fetch("/api/notifications/device", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token, platform: "web" }),
-  });
-  if (!response.ok) throw new Error("Could not register this device.");
+  const registered = await registerNotificationDevice({ token, platform: "web" });
+  if (!registered?.registered) throw new Error("Could not register this device.");
   return token;
 }
 

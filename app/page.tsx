@@ -8,7 +8,8 @@ import { clearDevelopmentServiceWorkers, enablePushNotifications, firebaseIsConf
 import { ModulePage } from "@/components/Modules";
 import { seedLessonNotes, seedNotifications, seedPlacements, seedStudents, seedVisits, type LessonNote, type NotificationItem, type Placement, type Student, type Visit } from "@/lib/sip-data";
 import { AppearanceLoader } from "@/components/AppearanceSettings";
-import { workflowStorageKey } from "@/lib/workflow-store";
+import { persistWorkflowData, readWorkflowDataAsync } from "@/lib/workflow-store";
+import { ensureApiRole, fetchCoordinatorDashboard, type CoordinatorDashboardKpis } from "@/lib/api-client";
 
 type IconName = "grid" | "users" | "school" | "pin" | "book" | "file" | "calendar" | "chart" | "bell" | "settings" | "search" | "plus" | "more" | "arrow" | "check" | "clock" | "menu" | "close" | "briefcase" | "download";
 
@@ -35,15 +36,23 @@ function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
 const nav = [
   ["Dashboard", "grid"], ["Students", "users"], ["Schools", "school"], ["Placements", "pin"],
   ["Supervisors", "briefcase"], ["IRB Submissions", "book"], ["Visits", "calendar"],
-  ["Post-Internship", "check"], ["Bulk Uploads", "download"], ["Audit Logs", "clock"], ["Reports", "chart"],
+  ["Staff Onboarding", "users"], ["Support Desk", "bell"], ["Bulk Uploads", "download"], ["Audit Logs", "clock"], ["Reports", "chart"],
 ] as [string, IconName][];
 
 const configurationNav = [
   ["IRB Configuration", "book"],
+  ["Lesson Note Format", "file"],
   ["Internship Letter", "file"],
 ] as [string, IconName][];
 
 const chartData = [42, 55, 48, 70, 66, 84, 76, 91, 82, 96, 88, 100];
+const defaultCoordinatorDashboard: CoordinatorDashboardKpis = {
+  kpis: { totalInterns: 0, activePlacements: 0, pendingApprovals: 0, completedSip: 0, openSupportTickets: 0 },
+  progress: { activeInterns: 0, change: "0%", series: chartData },
+  placementOverview: { total: 0, active: 0, pending: 0, completed: 0 },
+  recentActivity: [],
+  upcomingVisits: [],
+};
 const activities = [
   { initials: "EA", tone: "violet", title: "Placement request approved", desc: "Esi Asare • Akropong D/A JHS", time: "8 mins ago" },
   { initials: "KM", tone: "green", title: "Lesson note submitted", desc: "Kwame Mensah • Mathematics", time: "32 mins ago" },
@@ -66,6 +75,7 @@ export default function Dashboard() {
   const [visits, setVisits] = useState<Visit[]>(seedVisits);
   const [notifications, setNotifications] = useState<NotificationItem[]>(seedNotifications);
   const [dataReady, setDataReady] = useState(false);
+  const [dashboardData, setDashboardData] = useState<CoordinatorDashboardKpis>(defaultCoordinatorDashboard);
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -82,22 +92,34 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem(workflowStorageKey);
-    if (!stored) { setDataReady(true); return; }
-    try {
-      const data = JSON.parse(stored);
-      if (data.students) setStudents(data.students);
-      if (data.placements) setPlacements(data.placements);
-      if (data.notes) setNotes(data.notes);
-      if (data.visits) setVisits(data.visits);
-      if (data.notifications) setNotifications(data.notifications);
-    } catch { /* Keep safe seed data when local storage is malformed. */ }
-    setDataReady(true);
+    if (!ensureApiRole("coordinator")) {
+      fetch("/api/auth/logout", { method: "POST" }).finally(() => { window.location.href = "/login?role=coordinator"; });
+      return;
+    }
+    let alive = true;
+    readWorkflowDataAsync().then((data) => {
+      if (!alive) return;
+      setStudents(data.students);
+      setPlacements(data.placements);
+      setNotes(data.notes);
+      setVisits(data.visits);
+      setNotifications(data.notifications);
+      setDataReady(true);
+    });
+    return () => { alive = false; };
   }, []);
 
   useEffect(() => {
+    let alive = true;
+    fetchCoordinatorDashboard(dashboardPeriod).then((data) => {
+      if (alive && data) setDashboardData(data);
+    });
+    return () => { alive = false; };
+  }, [dashboardPeriod, active]);
+
+  useEffect(() => {
     if (!dataReady) return;
-    localStorage.setItem(workflowStorageKey, JSON.stringify({ students, placements, notes, visits, notifications }));
+    persistWorkflowData({ students, placements, notes, visits, notifications });
   }, [dataReady, students, placements, notes, visits, notifications]);
 
   async function turnOnPush() {
@@ -114,6 +136,7 @@ export default function Dashboard() {
   }
 
   async function signOut() {
+    localStorage.removeItem("sip_api_token");
     await fetch("/api/auth/logout", { method: "POST" });
     window.location.href = "/login?role=coordinator";
   }
@@ -141,23 +164,23 @@ export default function Dashboard() {
         <section className="page-title"><div><div className="eyebrow">OVERVIEW</div><h1>Welcome, Emmanuel</h1><p>Here’s what’s happening with the internship programme today.</p></div><div className="dashboard-periods coordinator-dashboard-periods">{["Today","This week","This month","All time"].map(period=><button className={dashboardPeriod===period?"active":""} onClick={()=>setDashboardPeriod(period)} key={period}>{period}</button>)}</div></section>
 
         <section className="metrics">
-          <Metric title="Total interns" value="2,846" change="12.5%" note="vs. last semester" icon="users" tone="indigo" onAction={()=>navigate("Students")} />
-          <Metric title="Active placements" value="2,174" change="8.2%" note="76.4% placement rate" icon="pin" tone="violet" onAction={()=>navigate("Placements")} />
-          <Metric title="Pending approvals" value="126" change="18 new" note="since yesterday" icon="clock" tone="amber" pending onAction={()=>navigate("Placements")} />
-          <Metric title="Completed SIP" value="546" change="6.4%" note="19.2% completion rate" icon="check" tone="green" onAction={()=>navigate("Post-Internship")} />
+          <Metric title="Total interns" value={dashboardData.kpis.totalInterns.toLocaleString()} change="Live" note="from backend" icon="users" tone="indigo" onAction={()=>navigate("Students")} />
+          <Metric title="Accepted placements" value={dashboardData.kpis.activePlacements.toLocaleString()} change={dashboardData.progress.change} note="student-recorded schools" icon="pin" tone="violet" onAction={()=>navigate("Placements")} />
+          <Metric title="Completed SIP" value={dashboardData.kpis.completedSip.toLocaleString()} change="Live" note="completed students" icon="check" tone="green" onAction={()=>navigate("Reports")} />
+          <Metric title="Support tickets" value={String(dashboardData.kpis.openSupportTickets || 0)} change="Live" note="open student/supervisor issues" icon="bell" tone="amber" pending onAction={()=>navigate("Support Desk")} />
         </section>
 
         <section className="dashboard-grid">
           <div className="card performance-card"><CardHeader title="Internship progress" subtitle="Monthly completion overview" action="Last 12 months" onAction={()=>showToast("Progress period filter opened.")}/>
-            <div className="chart-summary"><div><strong>2,174</strong><span>Active interns</span></div><span className="trend">↗ 8.2%</span><span className="compare">vs last semester</span></div>
-            <div className="chart-wrap"><div className="y-labels"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div><div className="chart"><div className="gridlines"><i/><i/><i/><i/><i/></div><svg viewBox="0 0 720 190" preserveAspectRatio="none" aria-label="Internship progress chart"><defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6366f1" stopOpacity=".26"/><stop offset="1" stopColor="#6366f1" stopOpacity=".01"/></linearGradient></defs><path className="area" d={`M 0 ${190-chartData[0]*1.55} ${chartData.map((v,i)=>`L ${i*65.45} ${190-v*1.55}`).join(" ")} L 720 190 L 0 190 Z`}/><polyline points={chartData.map((v,i)=>`${i*65.45},${190-v*1.55}`).join(" ")} /></svg><div className="months">{["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun"].map(m=><span key={m}>{m}</span>)}</div></div></div>
+            <div className="chart-summary"><div><strong>{dashboardData.progress.activeInterns.toLocaleString()}</strong><span>Active interns</span></div><span className="trend">↗ {dashboardData.progress.change}</span><span className="compare">backend KPI</span></div>
+            <div className="chart-wrap"><div className="y-labels"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div><div className="chart"><div className="gridlines"><i/><i/><i/><i/><i/></div><svg viewBox="0 0 720 190" preserveAspectRatio="none" aria-label="Internship progress chart"><defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6366f1" stopOpacity=".26"/><stop offset="1" stopColor="#6366f1" stopOpacity=".01"/></linearGradient></defs><path className="area" d={`M 0 ${190-dashboardData.progress.series[0]*1.55} ${dashboardData.progress.series.map((v,i)=>`L ${i*65.45} ${190-v*1.55}`).join(" ")} L 720 190 L 0 190 Z`}/><polyline points={dashboardData.progress.series.map((v,i)=>`${i*65.45},${190-v*1.55}`).join(" ")} /></svg><div className="months">{["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun"].map(m=><span key={m}>{m}</span>)}</div></div></div>
           </div>
-          <div className="card activity-card"><CardHeader title="Recent activity" subtitle="Latest updates across SIP" action="View all" link onAction={()=>navigate("Notifications")}/><div className="activity-list">{activities.map(a=><div className="activity" key={a.title}><div className={`activity-avatar ${a.tone}`}>{a.initials}</div><div><strong>{a.title}</strong><p>{a.desc}</p><span>{a.time}</span></div></div>)}</div></div>
+          <div className="card activity-card"><CardHeader title="Recent activity" subtitle="Latest updates across SIP" action="View all" link onAction={()=>navigate("Notifications")}/><div className="activity-list">{(dashboardData.recentActivity.length?dashboardData.recentActivity.map(item=>({initials:item.type.slice(0,2).toUpperCase(),tone:"violet",title:item.title,desc:item.message,time:item.time})):activities).map(a=><div className="activity" key={a.title}><div className={`activity-avatar ${a.tone}`}>{a.initials}</div><div><strong>{a.title}</strong><p>{a.desc}</p><span>{a.time}</span></div></div>)}</div></div>
         </section>
 
         <section className="lower-grid">
-          <div className="card placement-card"><CardHeader title="Placement overview" subtitle="Interns by current placement status" action="View placements" link onAction={()=>navigate("Placements")}/><div className="placement-content"><div className="donut"><div><strong>2,846</strong><span>Total interns</span></div></div><div className="legend"><Legend color="indigo" label="Active" value="2,174" percent="76.4%"/><Legend color="amber" label="Pending" value="126" percent="4.4%"/><Legend color="green" label="Completed" value="546" percent="19.2%"/></div></div></div>
-          <div className="card visits-card"><CardHeader title="Upcoming supervisor visits" subtitle="Scheduled over the next 14 days" action="View calendar" link onAction={()=>navigate("Visits")}/><div className="visits"><Visit month="JUN" day="24" name="Kwame Mensah" school="Asokwa M/A JHS" time="10:00 AM" onAction={()=>showToast("Visit details opened for Kwame Mensah.")}/><Visit month="JUN" day="26" name="Esi Asare" school="Akropong D/A JHS" time="9:30 AM" onAction={()=>showToast("Visit details opened for Esi Asare.")}/><Visit month="JUL" day="02" name="Afia Amoah" school="Wesley College Demo" time="11:00 AM" onAction={()=>showToast("Visit details opened for Afia Amoah.")}/></div></div>
+          <div className="card placement-card"><CardHeader title="Placement overview" subtitle="Interns by current placement status" action="View placements" link onAction={()=>navigate("Placements")}/><div className="placement-content"><div className="donut"><div><strong>{dashboardData.placementOverview.total.toLocaleString()}</strong><span>Total interns</span></div></div><div className="legend"><Legend color="indigo" label="Active" value={String(dashboardData.placementOverview.active)} percent="Approved"/><Legend color="amber" label="Pending" value={String(dashboardData.placementOverview.pending)} percent="Awaiting"/><Legend color="green" label="Completed" value={String(dashboardData.placementOverview.completed)} percent="Done"/></div></div></div>
+          <div className="card visits-card"><CardHeader title="Upcoming supervisor visits" subtitle="Scheduled over the next 14 days" action="View calendar" link onAction={()=>navigate("Visits")}/><div className="visits">{dashboardData.upcomingVisits.map(visit=><Visit key={visit.id} month={new Date((visit.rescheduledDate||visit.startDate)+"T00:00").toLocaleString("en",{month:"short"}).toUpperCase()} day={String(new Date((visit.rescheduledDate||visit.startDate)+"T00:00").getDate()).padStart(2,"0")} name={visit.student} school={visit.school} time={visit.time} onAction={()=>showToast(`Visit details opened for ${visit.student}.`)}/>)}</div></div>
         </section>
         {!firebaseIsConfigured && <div className="config-note"><Icon name="bell"/><div><strong>Firebase FCM is ready to connect</strong><span>Add the values from <code>.env.example</code> to <code>.env.local</code> to activate device registration and push delivery.</span></div></div>}
         </> : <ModulePage active={active} students={students} setStudents={setStudents} placements={placements} setPlacements={setPlacements} notes={notes} setNotes={setNotes} visits={visits} setVisits={setVisits} notifications={notifications} setNotifications={setNotifications} notify={(message) => { setToast(message); window.setTimeout(() => setToast(""), 3500); }}/>} 

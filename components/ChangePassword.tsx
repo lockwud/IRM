@@ -4,6 +4,7 @@
 // Unlike the public forgot-password flow, this verifies the current signed-in
 // user's password before allowing a new password to be saved.
 import { useState } from "react";
+import { apiBase } from "@/lib/api-client";
 
 type ChangePasswordPanelProps = { role: "student" | "supervisor" | "coordinator"; compact?: boolean; onSaved?: (message: string) => void };
 
@@ -25,9 +26,10 @@ export function ChangePasswordPanel({ role, compact, onSaved }: ChangePasswordPa
       return;
     }
     setSaving(true);
-    const response = await fetch("/api/auth/change-password", {
+    const token = localStorage.getItem("sip_api_token");
+    const response = await fetch(`${apiBase}/auth/change-password`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ currentPassword, newPassword }),
     });
     const result = await response.json();
