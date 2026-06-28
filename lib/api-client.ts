@@ -108,7 +108,13 @@ export type StaffInvite = {
 
 // Default to the deployed Express API. Local development can still override this
 // with NEXT_PUBLIC_API_BASE_URL, but no environment file is required in git.
-export const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "https://irm-backend-t750.onrender.com/api/v1").replace(/\/$/, "");
+// If hosting provides only the backend root URL, normalize it to the API prefix.
+function normalizeApiBase(value: string) {
+  const clean = value.replace(/\/$/, "");
+  return clean.endsWith("/api/v1") ? clean : `${clean}/api/v1`;
+}
+
+export const apiBase = normalizeApiBase(process.env.NEXT_PUBLIC_API_BASE_URL || "https://irm-backend-t750.onrender.com/api/v1");
 
 // Builds absolute backend URLs while allowing the app to run in frontend-only demo mode.
 function endpoint(path: string) {
