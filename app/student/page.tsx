@@ -52,6 +52,7 @@ export default function StudentPortalPage() {
   const [active, setActive] = useState("Overview");
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [workflow, setWorkflow] = useState<SipWorkflowData>(emptyStudentWorkflow);
   const [hydrated, setHydrated] = useState(false);
@@ -140,8 +141,8 @@ export default function StudentPortalPage() {
       <span>Preparing your student portal…</span>
     </div>}
     <aside className="student-sidebar">
-      <div className="student-brand"><span><img src="/ustedlogo.jpeg" alt="AAMUSTED logo"/></span><div><strong>AAMUSTED</strong><small>Student SIP Portal</small></div></div>
-      <nav>{portalNavigation.map(([label, icon]) => <button className={active === label ? "active" : ""} onClick={() => setActive(label)} key={label}><StudentIcon name={icon}/>{label}</button>)}</nav>
+      <div className="student-brand"><span><img src="/ustedlogo.jpeg" alt="AAMUSTED logo"/></span><div><strong>AAMUSTED</strong><small>Student SIP Portal</small></div><button className="student-mobile-menu-toggle" onClick={() => setMobileNavOpen(value => !value)} aria-expanded={mobileNavOpen} aria-label="Open student menu"><i/><i/><i/></button></div>
+      <nav className={mobileNavOpen ? "open" : ""}>{portalNavigation.map(([label, icon]) => <button className={active === label ? "active" : ""} onClick={() => { setActive(label); setMobileNavOpen(false); }} key={label}><StudentIcon name={icon}/>{label}</button>)}</nav>
       <div className="student-support"><strong>Need support?</strong><p>Contact CSTSI if you are unable to complete a required stage.</p><button onClick={contactSupport}>Contact support</button></div>
     </aside>
     <main className="student-main">

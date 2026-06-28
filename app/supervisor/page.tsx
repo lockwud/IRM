@@ -36,6 +36,7 @@ export default function SupervisorDashboard() {
   const [toast, setToast] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [workflow, setWorkflow] = useState<SipWorkflowData>(defaultWorkflowData);
   const [hydrated, setHydrated] = useState(false);
   const [dashboardData, setDashboardData] = useState<SupervisorDashboardKpis>(defaultSupervisorDashboard);
@@ -96,8 +97,8 @@ export default function SupervisorDashboard() {
 
   return <div className="supervisor-shell"><AppearanceLoader role="supervisor"/>
     <aside className="supervisor-sidebar">
-      <div className="supervisor-brand"><b><img src="/ustedlogo.jpeg" alt="AAMUSTED logo"/></b><span><strong>AAMUSTED</strong><small>Supervisor Portal</small></span></div>
-      <nav>{nav.map(([label, icon]) => <button className={active === label ? "active" : ""} onClick={() => openPage(label)} key={label}><SupervisorIcon name={icon}/>{label}</button>)}</nav>
+      <div className="supervisor-brand"><b><img src="/ustedlogo.jpeg" alt="AAMUSTED logo"/></b><span><strong>AAMUSTED</strong><small>Supervisor Portal</small></span><button className="supervisor-mobile-menu-toggle" onClick={() => setMobileNavOpen(value => !value)} aria-expanded={mobileNavOpen} aria-label="Open supervisor menu"><i/><i/><i/></button></div>
+      <nav className={mobileNavOpen ? "open" : ""}>{nav.map(([label, icon]) => <button className={active === label ? "active" : ""} onClick={() => { openPage(label); setMobileNavOpen(false); }} key={label}><SupervisorIcon name={icon}/>{label}</button>)}</nav>
     </aside>
     <main>
       <header className="supervisor-topbar">
