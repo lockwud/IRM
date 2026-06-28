@@ -106,9 +106,9 @@ export type StaffInvite = {
   account?: { identifier: string; alternateIdentifier: string; initialPassword: string; mustChangePassword: boolean };
 };
 
-// Default to the local Express API during development so requests are visible in
-// the browser Network tab and in backend morgan logs even when .env.local is missing.
-export const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api/v1").replace(/\/$/, "");
+// Default to the deployed Express API. Local development can still override this
+// with NEXT_PUBLIC_API_BASE_URL, but no environment file is required in git.
+export const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "https://irm-backend-t750.onrender.com/api/v1").replace(/\/$/, "");
 
 // Builds absolute backend URLs while allowing the app to run in frontend-only demo mode.
 function endpoint(path: string) {

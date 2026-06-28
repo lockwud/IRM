@@ -55,6 +55,7 @@ export default function StudentPortalPage() {
   const [message, setMessage] = useState("");
   const [workflow, setWorkflow] = useState<SipWorkflowData>(emptyStudentWorkflow);
   const [hydrated, setHydrated] = useState(false);
+  const [mobileSplash, setMobileSplash] = useState(false);
   const student = workflow.students[0] || fallbackStudent;
   const placements = workflow.placements.filter(item => item.student === student.name);
   const notes = workflow.notes.filter(item => item.student === student.name);
@@ -95,6 +96,14 @@ export default function StudentPortalPage() {
     if (hydrated) persistWorkflowData(workflow);
   }, [workflow, hydrated]);
 
+  useEffect(() => {
+    const isMobile = window.matchMedia("(max-width: 900px)").matches;
+    if (!isMobile) return;
+    setMobileSplash(true);
+    const timer = window.setTimeout(() => setMobileSplash(false), 4000);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   function feedback(text: string) {
     setMessage(text);
     window.setTimeout(() => setMessage(""), 3500);
@@ -125,6 +134,11 @@ export default function StudentPortalPage() {
   }
 
   return <div className="student-shell"><AppearanceLoader role="student"/>
+    {mobileSplash && <div className="student-mobile-splash" role="status" aria-live="polite">
+      <div className="student-mobile-splash-logo"><img src="/ustedlogo.jpeg" alt="AAMUSTED logo"/></div>
+      <strong>AAMUSTED SIP</strong>
+      <span>Preparing your student portal…</span>
+    </div>}
     <aside className="student-sidebar">
       <div className="student-brand"><span><img src="/ustedlogo.jpeg" alt="AAMUSTED logo"/></span><div><strong>AAMUSTED</strong><small>Student SIP Portal</small></div></div>
       <nav>{portalNavigation.map(([label, icon]) => <button className={active === label ? "active" : ""} onClick={() => setActive(label)} key={label}><StudentIcon name={icon}/>{label}</button>)}</nav>
