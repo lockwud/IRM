@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import { clearDevelopmentServiceWorkers, enablePushNotifications, firebaseIsConfigured, listenForForegroundMessages, registerPwaServiceWorker } from "@/lib/firebase";
 import { ModulePage } from "@/components/Modules";
-import { seedLessonNotes, seedNotifications, seedPlacements, seedStudents, seedVisits, type LessonNote, type NotificationItem, type Placement, type Student, type Visit } from "@/lib/sip-data";
+import { type LessonNote, type NotificationItem, type Placement, type Student, type Visit } from "@/lib/sip-data";
 import { AppearanceLoader } from "@/components/AppearanceSettings";
 import { persistWorkflowData, readWorkflowDataAsync } from "@/lib/workflow-store";
 import { ensureApiRole, fetchCoordinatorDashboard, type CoordinatorDashboardKpis } from "@/lib/api-client";
@@ -69,11 +69,11 @@ export default function Dashboard() {
   const [active, setActive] = useState("Dashboard");
   const [pushState, setPushState] = useState<"idle" | "loading" | "enabled" | "error">("idle");
   const [toast, setToast] = useState("");
-  const [students, setStudents] = useState<Student[]>(seedStudents);
-  const [placements, setPlacements] = useState<Placement[]>(seedPlacements);
-  const [notes, setNotes] = useState<LessonNote[]>(seedLessonNotes);
-  const [visits, setVisits] = useState<Visit[]>(seedVisits);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(seedNotifications);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [placements, setPlacements] = useState<Placement[]>([]);
+  const [notes, setNotes] = useState<LessonNote[]>([]);
+  const [visits, setVisits] = useState<Visit[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [dataReady, setDataReady] = useState(false);
   const [dashboardData, setDashboardData] = useState<CoordinatorDashboardKpis>(defaultCoordinatorDashboard);
 

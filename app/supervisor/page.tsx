@@ -1,15 +1,14 @@
 "use client";
 
 // Supervisor portal shell.
-// The supervisor workspace reads and writes the same local workflow store as the
-// coordinator and student portals, so reviews, visit scheduling and completions
-// immediately affect the rest of the demo system.
+// The supervisor workspace reads and writes the shared backend workflow so
+// reviews, visit scheduling and completions affect the other role portals.
 import { useEffect, useMemo, useState } from "react";
 import { UserSettings } from "@/components/UserSettings";
 import { ChangePasswordPanel } from "@/components/ChangePassword";
 import { AppearanceLoader, AppearanceSettings } from "@/components/AppearanceSettings";
 import type { LessonNote, Student, Visit } from "@/lib/sip-data";
-import { defaultWorkflowData, newNotification, persistWorkflowData, readWorkflowDataAsync, type SipWorkflowData } from "@/lib/workflow-store";
+import { newNotification, persistWorkflowData, readWorkflowDataAsync, type SipWorkflowData } from "@/lib/workflow-store";
 import { createSupportTicket, ensureApiRole, fetchSupervisorDashboard, type SupervisorDashboardKpis } from "@/lib/api-client";
 
 type SupervisorIconName = "grid" | "users" | "file" | "calendar" | "bell" | "logout";
@@ -30,6 +29,7 @@ const supervisorName = "Dr. Samuel Ofori";
 const supervisorEmail = "samuel.ofori@aamusted.edu.gh";
 const nav = [["Dashboard", "grid"], ["Assigned Interns", "users"], ["Lesson Reviews", "file"], ["Visit Schedule", "calendar"], ["Support", "bell"]] as [string, SupervisorIconName][];
 const defaultSupervisorDashboard: SupervisorDashboardKpis = { kpis: { assignedInterns: 0, pendingReviews: 0, upcomingVisits: 0, averageIrbProgress: 0, completedVisits: 0 }, assignedInterns: [], pendingLessonReviews: [] };
+const emptyWorkflow: SipWorkflowData = { students: [], placements: [], notes: [], visits: [], notifications: [] };
 
 export default function SupervisorDashboard() {
   const [active, setActive] = useState("Dashboard");
@@ -37,7 +37,7 @@ export default function SupervisorDashboard() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [workflow, setWorkflow] = useState<SipWorkflowData>(defaultWorkflowData);
+  const [workflow, setWorkflow] = useState<SipWorkflowData>(emptyWorkflow);
   const [hydrated, setHydrated] = useState(false);
   const [dashboardData, setDashboardData] = useState<SupervisorDashboardKpis>(defaultSupervisorDashboard);
   const [dashboardPeriod, setDashboardPeriod] = useState("This week");
@@ -259,7 +259,7 @@ function InternWorkspace({ active, assignedInterns, notes, visits, workflow, set
 
   if (active === "Lesson Reviews") return <section className="module-card"><div className="section-heading"><div><h2>Lesson reviews</h2><p>Open the full lesson note, comment against each section and approve or request revision.</p></div></div><div className="table-scroll"><table><thead><tr><th>Lesson</th><th>Student</th><th>Subject</th><th>Topic</th><th>Mentor</th><th>Supervisor</th><th>Action</th></tr></thead><tbody>{notes.map(note => <tr key={note.id}><td><strong>{note.id}</strong></td><td>{note.student}</td><td>{note.subject}</td><td>{note.topic}</td><td><Status value={note.mentor}/></td><td><Status value={note.supervisor}/></td><td><button className="secondary table-review-button" onClick={() => setSelectedNote(note)}>{note.supervisor === "Pending" ? "Open review" : "View review"}</button></td></tr>)}</tbody></table>{!notes.length && <EmptyState copy="Lesson notes from assigned interns will appear here."/>}</div></section>;
 
-  return <section className="module-card"><div className="section-heading"><div><h2>Visit schedule</h2><p>Inspect coordinator visit ranges, reschedule exact supervision dates and complete visits.</p></div><button className="primary" onClick={() => setScheduleOpen(true)}>＋ Add visit window</button></div><div className="supervisor-action-list">{visits.length ? visits.map(visit => <article key={visit.id}><div className="person"><b>{initials(visit.student)}</b><span><strong>{visit.student}</strong><small>{visit.school}</small></span></div><span>{formatVisitWindow(visit)} · {visit.time}</span><Status value={visit.status}/><div className="row-actions"><button onClick={() => setVisitDetail(visit)}>View</button><button disabled={visit.status === "Completed"} onClick={() => setRescheduleVisit(visit)}>Reschedule</button><button className="primary" disabled={visit.status === "Completed"} onClick={() => complete(visit)}>{visit.status === "Completed" ? "Completed" : "Mark completed"}</button></div></article>) : <EmptyState copy="No supervisor visits have been scheduled yet."/>}</div>{scheduleOpen && <SupervisorModal title="Add supervision window" close={() => setScheduleOpen(false)} onSubmit={schedule}><Select name="student" label="Intern" options={assignedInterns.map(item => item.name)}/><Field name="school" label="School fallback" defaultValue={assignedInterns[0]?.school || ""}/><Field name="startDate" label="Window start date" type="date"/><Field name="endDate" label="Window end date" type="date"/><Field name="time" label="Preferred time" type="time"/></SupervisorModal>}{rescheduleVisit && <SupervisorModal title="Reschedule visit" close={() => setRescheduleVisit(null)} onSubmit={reschedule}><Field name="rescheduledDate" label="New exact visit date" type="date" defaultValue={rescheduleVisit.rescheduledDate || rescheduleVisit.startDate}/><Field name="time" label="New time" type="time" defaultValue={rescheduleVisit.time}/><Field name="rescheduleReason" label="Reason" defaultValue={rescheduleVisit.rescheduleReason || ""}/><p className="form-note">The student will see this updated supervision date immediately.</p></SupervisorModal>}{visitDetail && <VisitDetails visit={visitDetail} close={() => setVisitDetail(null)} onComplete={() => { complete(visitDetail); setVisitDetail(null); }}/>}</section>;
+  return <section className="module-card"><div className="section-heading"><div><h2>Visit schedule</h2><p>Inspect coordinator visit ranges, reschedule exact supervision dates and complete visits.</p></div><button className="primary" onClick={() => setScheduleOpen(true)}>＋ Add visit window</button></div><div className="supervisor-action-list">{visits.length ? visits.map(visit => <article key={visit.id}><div className="person"><b>{initials(visit.student)}</b><span><strong>{visit.student}</strong><small>{visit.school}</small></span></div><span>{formatVisitWindow(visit)} · {visit.time}</span><Status value={visit.status}/><div className="row-actions"><button onClick={() => setVisitDetail(visit)}>View</button><button disabled={visit.status === "Completed"} onClick={() => setRescheduleVisit(visit)}>Reschedule</button><button className="primary" disabled={visit.status === "Completed"} onClick={() => complete(visit)}>{visit.status === "Completed" ? "Completed" : "Mark completed"}</button></div></article>) : <EmptyState copy="No supervisor visits have been scheduled yet."/>}</div>{scheduleOpen && <SupervisorModal title="Add supervision window" close={() => setScheduleOpen(false)} onSubmit={schedule}><Select name="student" label="Intern" options={assignedInterns.map(item => item.name)}/><Field name="school" label="School" defaultValue={assignedInterns[0]?.school || ""}/><Field name="startDate" label="Window start date" type="date"/><Field name="endDate" label="Window end date" type="date"/><Field name="time" label="Preferred time" type="time"/></SupervisorModal>}{rescheduleVisit && <SupervisorModal title="Reschedule visit" close={() => setRescheduleVisit(null)} onSubmit={reschedule}><Field name="rescheduledDate" label="New exact visit date" type="date" defaultValue={rescheduleVisit.rescheduledDate || rescheduleVisit.startDate}/><Field name="time" label="New time" type="time" defaultValue={rescheduleVisit.time}/><Field name="rescheduleReason" label="Reason" defaultValue={rescheduleVisit.rescheduleReason || ""}/><p className="form-note">The student will see this updated supervision date immediately.</p></SupervisorModal>}{visitDetail && <VisitDetails visit={visitDetail} close={() => setVisitDetail(null)} onComplete={() => { complete(visitDetail); setVisitDetail(null); }}/>}</section>;
 }
 
 function InternTable({ assignedInterns, onView }: { assignedInterns: AssignedIntern[]; onView: (intern: AssignedIntern) => void }) {

@@ -1,9 +1,10 @@
-import { seedLessonNotes, seedNotifications, seedPlacements, seedStudents, seedVisits, type LessonNote, type NotificationItem, type Placement, type Student, type Visit } from "@/lib/sip-data";
+import { type LessonNote, type NotificationItem, type Placement, type Student, type Visit } from "@/lib/sip-data";
 import { fetchWorkflowData, saveWorkflowData } from "@/lib/api-client";
 
-// Shared browser-side workflow store used by the three demo portals.
-// The coordinator, supervisor and student pages all read/write this same key so
-// actions in one portal are reflected in the other role workspaces.
+// Shared workflow payload used by the three portals.
+// Runtime data now comes from the Express API; localStorage is kept only as a
+// short-lived cache after successful API reads so a refresh does not flash old
+// seed/demo data before the backend responds.
 export type SipWorkflowData = {
   students: Student[];
   placements: Placement[];
@@ -15,11 +16,11 @@ export type SipWorkflowData = {
 export const workflowStorageKey = "sip-demo-data";
 
 export const defaultWorkflowData: SipWorkflowData = {
-  students: seedStudents,
-  placements: seedPlacements,
-  notes: seedLessonNotes,
-  visits: seedVisits,
-  notifications: seedNotifications,
+  students: [],
+  placements: [],
+  notes: [],
+  visits: [],
+  notifications: [],
 };
 
 export function readWorkflowData(): SipWorkflowData {
@@ -29,11 +30,11 @@ export function readWorkflowData(): SipWorkflowData {
   try {
     const value = JSON.parse(stored) as Partial<SipWorkflowData>;
     return {
-      students: value.students?.length ? value.students : seedStudents,
-      placements: value.placements?.length ? value.placements : seedPlacements,
-      notes: value.notes?.length ? value.notes : seedLessonNotes,
-      visits: value.visits?.length ? value.visits.map(normalizeVisit) : seedVisits,
-      notifications: value.notifications?.length ? value.notifications : seedNotifications,
+      students: value.students || [],
+      placements: value.placements || [],
+      notes: value.notes || [],
+      visits: value.visits?.map(normalizeVisit) || [],
+      notifications: value.notifications || [],
     };
   } catch {
     return defaultWorkflowData;
@@ -52,19 +53,19 @@ export function writeWorkflowData(data: SipWorkflowData) {
 }
 
 export async function readWorkflowDataAsync(): Promise<SipWorkflowData> {
-  // Prefer the backend when it is configured and authenticated. If the API is
-  // unavailable, fall back to localStorage so the demo can continue offline.
+  // The backend is the source of truth. If it is unavailable, return an empty
+  // state instead of showing seeded/browser-only records that were not fetched.
   const remote = await fetchWorkflowData();
   if (remote) {
     writeWorkflowData(remote);
     return remote;
   }
-  return readWorkflowData();
+  return defaultWorkflowData;
 }
 
 export async function persistWorkflowData(data: SipWorkflowData) {
-  // Always save locally first for instant UI updates, then mirror to the API.
-  // The API client silently no-ops when NEXT_PUBLIC_API_BASE_URL is not set.
+  // Keep the UI responsive, then mirror to the API. If the API rejects the
+  // update, the next read will restore the server state instead of using seeds.
   writeWorkflowData(data);
   await saveWorkflowData(data);
 }

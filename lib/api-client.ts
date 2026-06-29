@@ -79,7 +79,7 @@ export type LessonAiGuideResponse = {
     main: string;
     reflection: string;
   }>;
-  provider: "gemini" | "fallback";
+  provider: "gemini";
 };
 export type LessonAiChatMessage = { role: "assistant" | "student"; text: string; createdAt?: string };
 export type LessonAiChat = {
@@ -104,6 +104,15 @@ export type StaffInvite = {
   status: "Pending" | "Accepted" | "Revoked";
   invitedAt: string;
   account?: { identifier: string; alternateIdentifier: string; initialPassword: string; mustChangePassword: boolean };
+};
+export type SupervisorAssignmentInput = {
+  supervisorId?: string;
+  supervisorName: string;
+  staffId: string;
+  regions: string[];
+  internIds: string[];
+  capacity: number;
+  completedVisits?: number;
 };
 
 // Default to the deployed Express API. Local development can still override this
@@ -225,6 +234,20 @@ export async function fetchSupervisors() {
 
 export async function fetchSupervisorAssignments() {
   return request("/supervisor-assignments");
+}
+
+export async function createSupervisorAssignment(input: SupervisorAssignmentInput) {
+  return request("/supervisor-assignments", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function assignPlacementSupervisor(placementId: string, supervisorName: string) {
+  return request(`/placements/${placementId}/assign-supervisor`, {
+    method: "POST",
+    body: JSON.stringify({ supervisorName }),
+  });
 }
 
 export async function fetchAuditLogs() {
@@ -414,7 +437,6 @@ export async function suggestSchool(input: { name: string; region: string; munic
 }
 
 // Configuration endpoints keep coordinator-built templates synced with the API.
-// Each caller still keeps a local fallback so the demo remains usable without a running backend.
 export async function fetchIrbTemplate() {
   return request<ApiIrbSection[]>("/configurations/irb-template");
 }

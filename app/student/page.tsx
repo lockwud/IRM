@@ -10,8 +10,8 @@ import { AppearanceLoader, AppearanceSettings } from "@/components/AppearanceSet
 import { StudentInternshipLetter } from "@/components/InternshipLetter";
 import { ChangePasswordPanel } from "@/components/ChangePassword";
 import { GhanaLocationSelect } from "@/components/GhanaLocationSelect";
-import { askLessonAiGuide, createIrbSubmission, createSupportTicket, deleteLessonAiChat, ensureApiRole, fetchLessonAiChats, fetchSchools, saveLessonAiChat, suggestSchool, type LessonAiChat, type LessonAiChatMessage, type StudentDashboardKpis } from "@/lib/api-client";
-import { fallbackSchools, schoolToPlacementOption } from "@/lib/school-directory";
+import { askLessonAiGuide, createIrbSubmission, createSupportTicket, deleteLessonAiChat, ensureApiRole, fetchLessonAiChats, fetchSchools, fetchStudentIrbSections, saveLessonAiChat, suggestSchool, type LessonAiChat, type LessonAiChatMessage, type StudentDashboardKpis } from "@/lib/api-client";
+import { schoolToPlacementOption } from "@/lib/school-directory";
 import type { LessonNote, NotificationItem, Placement, Student, Visit } from "@/lib/sip-data";
 import { newNotification, persistWorkflowData, readWorkflowDataAsync, type SipWorkflowData } from "@/lib/workflow-store";
 
@@ -33,7 +33,6 @@ function StudentIcon({ name }: { name: StudentIconName }) {
 
 const portalNavigation = [["Overview", "home"], ["My Placement", "pin"], ["Whitebook (IRB)", "book"], ["Lesson Notes", "file"], ["Supervisor Visits", "calendar"], ["Documents", "download"]] as const;
 const currentStudentName = "Kwame Mensah";
-const defaultPlacementSchools = fallbackSchools.map(schoolToPlacementOption);
 const defaultStudentDashboard: StudentDashboardKpis = { student: { id: "", name: currentStudentName, email: "", region: "Ashanti" }, kpis: { progress: 0, placement: null, irbProgress: "0 of 6 sections", approvedLessonNotes: 0, pendingLessonNotes: 0, nextVisit: null } };
 const emptyStudentWorkflow: SipWorkflowData = { students: [], placements: [], notes: [], visits: [], notifications: [] };
 const fallbackStudent: Student = { id: "", name: "Student", email: "", programme: "", department: "", year: 4, school: "—", region: "Ashanti", status: "Pending" };
@@ -188,7 +187,7 @@ function StudentSection({ name, student, placements, notes, visits, workflow, sa
   const [selectedSchool, setSelectedSchool] = useState("");
   const [addingSchool, setAddingSchool] = useState(false);
   const [customSchool, setCustomSchool] = useState({ name: "", municipality: "", community: "", region: student.region });
-  const [placementSchools, setPlacementSchools] = useState(defaultPlacementSchools);
+  const [placementSchools, setPlacementSchools] = useState<ReturnType<typeof schoolToPlacementOption>[]>([]);
   const [lessonMode, setLessonMode] = useState<LessonMode>("Weekly");
   const [plannerOpen, setPlannerOpen] = useState(false);
   const [lessonPlanner, setLessonPlanner] = useState<LessonPlannerState>(() => defaultLessonPlanner(notes.length + 1));
@@ -448,9 +447,7 @@ function LessonPlannerPage({ mode, planner, setPlanner, close, submit, canSubmit
       }
       throw new Error("Empty AI response");
     } catch {
-      const lower = prompt.toLowerCase();
-      const kind: "indicators" | "performance" | "resources" | "starter" | "main" | "reflection" | "general" = lower.includes("indicator") ? "indicators" : lower.includes("performance") || lower.includes("objective") ? "performance" : lower.includes("resource") ? "resources" : lower.includes("starter") ? "starter" : lower.includes("main") || lower.includes("activity") ? "main" : lower.includes("reflection") || lower.includes("assessment") ? "reflection" : "general";
-      const next = [...withStudent, { role: "assistant" as const, text: aiDraft(kind), createdAt: new Date().toISOString() }];
+      const next = [...withStudent, { role: "assistant" as const, text: "I could not reach Gemini from the backend. Please confirm GEMINI_API_KEY is set on Render, the backend has been redeployed, and the AI endpoint is returning provider: gemini.", createdAt: new Date().toISOString() }];
       setAiMessages(next);
       void persistAiChat(next);
     } finally {
@@ -493,7 +490,7 @@ function LessonPlannerPage({ mode, planner, setPlanner, close, submit, canSubmit
 function LessonAiDrawer({messages,history,historyError,tab,setTab,prompt,setPrompt,ask,insert,close,loading,newChat,loadChat,deleteChat}:{messages:LessonAiChatMessage[];history:LessonAiChat[];historyError:string;tab:"chat"|"history";setTab:(tab:"chat"|"history")=>void;prompt:string;setPrompt:(value:string)=>void;ask:()=>void;insert:(kind:"indicators"|"performance"|"resources"|"starter"|"main"|"reflection")=>void;close:()=>void;loading:boolean;newChat:()=>void;loadChat:(chat:LessonAiChat)=>void;deleteChat:(id:string)=>void}) {
   return <aside className="notification-drawer lesson-ai-drawer">
     <header><div><strong>AI lesson-note guide</strong><span>Ghana lesson note assistant</span></div><button onClick={close} aria-label="Close AI guide">×</button></header>
-    <div className="lesson-ai-setup"><strong>Gemini setup</strong><span>Add your key in the backend environment as <code>GEMINI_API_KEY</code>. The assistant uses safe fallback guidance until the key is configured.</span></div>
+    <div className="lesson-ai-setup"><strong>Gemini setup</strong><span>Add your key in the backend environment as <code>GEMINI_API_KEY</code>. The assistant now uses Gemini only and will show a provider error if the key or model is not available.</span></div>
     <div className="lesson-ai-tabs"><button className={tab==="chat"?"active":""} onClick={()=>setTab("chat")}>Chat</button><button className={tab==="history"?"active":""} onClick={()=>setTab("history")}>History <span>{history.length}</span></button></div>
     {tab==="chat" ? <>
       <div className="lesson-ai-toolbar"><button onClick={newChat}>＋ New chat</button></div>
@@ -548,6 +545,18 @@ function StudentIrbWorkspace({ student, activePlacement, workflow, saveWorkflow 
   const [statuses, setStatuses] = useState<StudentIrbStatus>(() => readStudentIrbStatuses(student.id));
   const current = pages[page];
   const currentValues = current.fields.reduce<Record<string, string>>((map, field) => ({ ...map, [field.id]: values[current.id]?.[field.id] || autoIrbValue(field, student, activePlacement) }), {});
+
+  useEffect(() => {
+    let alive = true;
+    fetchStudentIrbSections().then(remote => {
+      if (!alive || !remote?.length) return;
+      const next = remote.map(item => ({ id: item.id, title: item.title, subtitle: item.subtitle, fields: item.fields as ConfiguredIrbField[] }));
+      setPages(next);
+      localStorage.setItem("sip-irb-template", JSON.stringify(next));
+      setPage(current => Math.min(current, next.length - 1));
+    });
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => localStorage.setItem(`sip-irb-values-${student.id}`, JSON.stringify(values)), [student.id, values]);
   useEffect(() => localStorage.setItem(`sip-irb-status-${student.id}`, JSON.stringify(statuses)), [student.id, statuses]);
