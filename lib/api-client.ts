@@ -125,7 +125,8 @@ function normalizeApiBase(value: string) {
 
 export const apiBase = normalizeApiBase(process.env.NEXT_PUBLIC_API_BASE_URL || "https://irm-backend-t750.onrender.com/api/v1");
 
-// Builds absolute backend URLs while allowing the app to run in frontend-only demo mode.
+// Builds absolute backend URLs. Production mode is strict: failed backend
+// requests throw instead of falling back to browser/demo data.
 function endpoint(path: string) {
   return `${apiBase}${path.startsWith("/") ? path : `/${path}`}`;
 }
@@ -156,8 +157,8 @@ export function ensureApiRole(role: "student" | "supervisor" | "coordinator") {
   return false;
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T | null> {
-  if (!backendEnabled()) return null;
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  if (!backendEnabled()) throw new Error("Backend API base URL is not configured.");
   const token = typeof window !== "undefined" ? window.localStorage.getItem("sip_api_token") : "";
   try {
     const response = await fetch(endpoint(path), {
@@ -172,18 +173,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T | null> {
     if (!response.ok) {
       const errorText = await response.text().catch(() => "");
       if (process.env.NODE_ENV !== "production") console.warn(`API request failed: ${path}`, response.status, errorText);
-      return null;
+      throw new Error(errorText || `API request failed with status ${response.status}`);
     }
     return (await response.json()) as T;
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof Error) throw error;
+    throw new Error("Backend API request failed.");
   }
 }
 
 // Shared workflow payload used by coordinator, supervisor and student portals.
-// This is the quickest complete integration path for the demo: every role reads
-// the same server workflow and writes changed students, placements, notes,
-// visits and notifications back to the API.
+// Every role reads and writes the authorised workflow through the backend API.
 export async function fetchWorkflowData() {
   return request<SipWorkflowData>("/workflow");
 }
