@@ -11,7 +11,8 @@ export const metadata: Metadata = {
     title: "SIP Portal",
   },
   icons: {
-    icon: "/icon.svg",
+    icon: "/ustedlogo.jpeg",
+    shortcut: "/ustedlogo.jpeg",
     apple: "/ustedlogo.jpeg",
   },
 };

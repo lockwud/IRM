@@ -9,11 +9,12 @@
   "background_color": "#f8fafc",
   "theme_color": "#4f46e5",
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/ustedlogo.jpeg", "sizes": "192x192", "type": "image/jpeg", "purpose": "any" },
+    { "src": "/ustedlogo.jpeg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any" }
   ],
   "shortcuts": [
-    { "name": "Student Portal", "short_name": "Student", "url": "/login?role=student", "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }] },
-    { "name": "Supervisor Portal", "short_name": "Supervisor", "url": "/login?role=supervisor", "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }] },
-    { "name": "Coordinator Portal", "short_name": "Coordinator", "url": "/login?role=coordinator", "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }] }
+    { "name": "Student Portal", "short_name": "Student", "url": "/login?role=student", "icons": [{ "src": "/ustedlogo.jpeg", "sizes": "192x192", "type": "image/jpeg" }] },
+    { "name": "Supervisor Portal", "short_name": "Supervisor", "url": "/login?role=supervisor", "icons": [{ "src": "/ustedlogo.jpeg", "sizes": "192x192", "type": "image/jpeg" }] },
+    { "name": "Coordinator Portal", "short_name": "Coordinator", "url": "/login?role=coordinator", "icons": [{ "src": "/ustedlogo.jpeg", "sizes": "192x192", "type": "image/jpeg" }] }
   ]
 }

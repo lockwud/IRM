@@ -6,7 +6,7 @@ importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-com
 const params = new URL(self.location).searchParams;
 // Increment this version whenever the offline shell changes so activate removes stale responses.
 const CACHE = "aamusted-sip-v2";
-const APP_SHELL = ["/manifest.webmanifest", "/icon.svg"];
+const APP_SHELL = ["/manifest.webmanifest", "/ustedlogo.jpeg"];
 const config = {
   apiKey: params.get("apiKey"),
   authDomain: params.get("authDomain"),
@@ -23,8 +23,8 @@ if (config.apiKey && !firebase.apps.length) {
     const notification = payload.notification || {};
     self.registration.showNotification(notification.title || "SIP Portal update", {
       body: notification.body || "You have a new notification.",
-      icon: "/icon.svg",
-      badge: "/icon.svg",
+      icon: "/ustedlogo.jpeg",
+      badge: "/ustedlogo.jpeg",
       data: { url: payload.data?.url || "/" },
       tag: payload.data?.type || "sip-update",
     });
